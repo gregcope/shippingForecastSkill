@@ -1,5 +1,5 @@
-ShippingForecast get shipping forecast for {area}
-ShippingForecast what is the forecast for {area}
-ShippingForecast tell me the forecast for {area}
-ShippingForecast get forecast for {area}
-ShippingForecast list areas
+OneshotForecastIntent get shipping forecast for {area}
+OneshotForecastIntent what is the forecast for {area}
+OneshotForecastIntent tell me the forecast for {area}
+OneshotForecastIntent get forecast for {area}
+SupportedAreasIntent list areas

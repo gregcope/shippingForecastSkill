@@ -1,13 +1,25 @@
 {
   "intents": [
     {
-      "intent": "ShippingForecast",
+      "intent": "OneshotForecastIntent",
       "slots": [
         {
           "name": "area",
           "type": "SHIPPING_FORECAST_AREAS"
         }
       ]
+    },
+    {
+      "intent": "SupportedAreasIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
     }
   ]
 }
