@@ -9,5 +9,8 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 * regex's out the relevant area
 * returns
 
+##Howto
+install npm install --save alexa-sdk
+
 ##Licence
 GNU GPL v3
