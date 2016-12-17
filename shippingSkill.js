@@ -1,4 +1,4 @@
-/*
+/* 
 / A node function
 / To take one argument (a sting)
 / Look it up in a shipping forecast area list
@@ -8,6 +8,8 @@
 / <Greg Cope> greg.cope@gmail.com
 / 08-Dec-2016 Initial version
 / 15-Dec-2016 Working version with comments
+/ 17-Dec-2016 See Github repo for updates/versions
+/ https://github.com/gregcope/shippingForecastSkill
 */
 
 // Global Variables to use
@@ -81,12 +83,10 @@ if ( area == undefined ) {
 // we have at least one argument to check
 if ( areaNumber = areaCodeMap[area] ) {
   // try looking up in list
-  console.log("Looking for area: ", area);
-  //areaNumber = areaCodeMap[area];
-  console.log("Which is number: ", areaNumber);
+  console.log("Looking for area: '" + area + "', which is number: " + areaNumber);
 } else {
   // oh - not in list
-  console.log("Sorry, I cannot do that Dave, cannot find area: ", area, ", in my shipping area list, please try again");
+  console.log("Sorry, I cannot do that Dave.  Cannot find area:",area,", in my shipping area list.  Please try again");
   process.exit(2);
 }
 
@@ -128,13 +128,14 @@ function callback_function(str) {
   // build the text response, assuming it is all cushty
   // TODO error trapping like area not there
   f = foreCast(str, areaNumber);
-  alexaReply = f.area() + '.' + f.wind() + f.seastate() + f.weather() + f.visibility();
+  alexaReply = f.area() + '.  Issued at ' +f.time() + 'UTC.  ' + f.wind() + '  ' + f.seastate() + '  ' + f.weather() + '  ' + f.visibility();
   console.log(alexaReply);
 }
 
 // function to regex the http response
 // looking for parts of the shipping forcast, by areaNumber
 // each return, returns text, no quotes
+// got from https://code.tutsplus.com/tutorials/you-dont-know-anything-about-regular-expressions-a-complete-guide--net-7869
 function foreCast(str, areaNumber) {
   console.log("Looking for area: '",areaNumber,"'");
   //console.log("in string: '",str,"'");
@@ -171,6 +172,12 @@ function foreCast(str, areaNumber) {
       // seastate[14] = "Slight or moderate.";
       // console.log("in seastate function");
       var re = new RegExp('seastate\\[' + areaNumber + '\\] = \\"(.*)\\"');
+      var regResults = str.match(re);
+      return regResults[1];
+    },
+    time : function () {
+      // shipIssueTime[21] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
+      var re = new RegExp('shipIssueTime\\[' + areaNumber + '\\] = \\"(\\d{4}).*\\"');
       var regResults = str.match(re);
       return regResults[1];
     }
