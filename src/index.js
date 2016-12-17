@@ -219,7 +219,7 @@ function handleOneshotForecastRequest(intent, session, response) {
     var areaNumber = getAreaNumberFromIntent(intent, true),
         repromptText,
         speechOutput;
-    console.log("handleOneshotForecastRequest: areaNumber: "+areaNumber);
+    console.log("handleOneshotForecastRequest: areaNumber: "+areaNumber.areaNumber);
     if (areaNumber.error) {
         // invalid Area. move to the dialog
         repromptText = "Currently, I know forecast information for these Areas: " + getAllAreasText()
@@ -232,7 +232,7 @@ function handleOneshotForecastRequest(intent, session, response) {
     }
 
     // all slots filled, either from the user or by default values. Move to final request
-    getFinalForecastResponse(areaNumber, response);
+    getFinalForecastResponse(areaNumber.areaNumber, response);
 }
 
 /**
@@ -242,7 +242,8 @@ function handleOneshotForecastRequest(intent, session, response) {
 function getFinalForecastResponse(areaNumber, response) {
 
     // Issue the request, and respond to the user
-    makeForecastRequest(areaNumber.area, function forecastResponseCallback(err, ForecastResponse) {
+    console.log("getFinalForecastResponse: looking for areaNumber: "+areaNumber);
+    makeForecastRequest(areaNumber, function forecastResponseCallback(err, ForecastResponse) {
         var speechOutput;
 
         if (err) {
@@ -265,6 +266,7 @@ function getFinalForecastResponse(areaNumber, response) {
 
 function makeForecastRequest(areaNumber, forecastResponseCallback) {
 
+    console.log("makeForecastRequest: looking for areaNumnber: "+areaNumber);
     var metURI = 'http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js';
 
     http.get(metURI, function (res) {
@@ -280,7 +282,7 @@ function makeForecastRequest(areaNumber, forecastResponseCallback) {
         });
 
         res.on('end', function () {
-                var forecast = foreCast(metResponseString, 14);
+                var forecast = foreCast(metResponseString, areaNumber);
                 console.log("makeForecastRequest: have metResponseString: "+metResponseString+". areaNumber: "+areaNumber);
                 var alexaReply = forecast.area() + '.  Issued at ' +forecast.time() + 'UTC.  ' + forecast.wind() + '  ' + forecast.seastate() + '  ' + forecast.weather() + '  ' + forecast.visibility();
                 forecastResponseCallback(null, alexaReply);
@@ -296,7 +298,7 @@ function makeForecastRequest(areaNumber, forecastResponseCallback) {
 // each return, returns text, no quotes
 // got from https://code.tutsplus.com/tutorials/you-dont-know-anything-about-regular-expressions-a-complete-guide--net-7869
 function foreCast(str, areaNumber) {
-  console.log("foreCast: Looking for area: '",areaNumber,"'");
+  console.log("foreCast: Looking for area: "+areaNumber);
   //console.log("in string: '",str,"'");
   return {
     area : function() {
@@ -365,11 +367,10 @@ function getAreaNumberFromIntent(intent, assignDefault) {
         } else {
             console.log("getAreaNumberFromIntent: returing default areaNumber: 14");
             // For sample skill, default to White.
-            return 14;
-            // return {
-            //    area: 'White',
-            //    areaNumber: AREAS.White
-            //}
+             return {
+                area: 'White',
+                areaNumber: 14
+            }
         }
     } else {
         // lookup the area
