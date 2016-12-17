@@ -23,6 +23,10 @@ var metPath = '/lib/includes/marine/gale_and_shipping_table.js';
 // string for HTTP response
 var str = '';
 
+// forcast object and alexaReply string
+var f = '';
+var alexaReply = '';
+
 // an object of all the shipping areas
 // so that we can parse the response
 var areaCodeMap = {
@@ -56,7 +60,8 @@ var areaCodeMap = {
   "Bailey" : "28",
   "Fair Isle" : "29",
   "Faeroes" : "30",
-  "South-east Iceland" : "31"
+  // This is actually "South-east Iceland" in the JS file
+  "South east Iceland" : "31"
 };
 
 // some logging at kickoff
@@ -64,7 +69,7 @@ console.log('Starting shippingSkill');
 console.log("Argument / area to look for:", process.argv[2]);
 
 // pull out the first arg to the script
-var area = process.argv[2];
+area = process.argv[2];
 
 // check for an argument
 if ( area == undefined ) {
@@ -121,9 +126,9 @@ function callback_function(str) {
   console.log('done!');
 
   // build the text response, assuming it is all cushty
-  // TODO error trapping like not there
-  var f = foreCast(str, areaNumber);
-  var alexaReply = f.area() + '.' + f.wind() + f.seastate() + f.weather() + f.visibility();
+  // TODO error trapping like area not there
+  f = foreCast(str, areaNumber);
+  alexaReply = f.area() + '.' + f.wind() + f.seastate() + f.weather() + f.visibility();
   console.log(alexaReply);
 }
 
