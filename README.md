@@ -7,10 +7,18 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 * Takes one area as an argument
 * Downloads http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js
 * regex's out the relevant area
-* returns
+* returns Forecast
 
-##Howto
-install npm install --save alexa-sdk
+##How
+Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
+
+##Build
+# Clone repo
+# cd src
+# <hack files>
+# zip f.zip *
+# upload to zip to AWS lambda
+# profit
 
 ##Command line
 node shippingSkill.js "South east Iceland"
