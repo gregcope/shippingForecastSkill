@@ -15,7 +15,7 @@ Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/
 ##Build
 1. Clone repo
 2. cd src
-3. <hack files>
+3. hack stuff
 4. zip f.zip *
 5. upload to zip to AWS lambda
 6. profit
