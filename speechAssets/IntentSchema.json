@@ -1,0 +1,13 @@
+{
+  "intents": [
+    {
+      "intent": "ShippingForecast",
+      "slots": [
+        {
+          "name": "area",
+          "type": "SHIPPING_FORECAST_AREAS"
+        }
+      ]
+    }
+  ]
+}
