@@ -9,6 +9,11 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 * regex's out the relevant area
 * returns Forecast
 
+##Usage (once configured)
+# get shipping forecast for Viking
+# Should return something like; "Viking.  Issued at 10 30UTC.  Southwesterly 7 or gale 8 in southeast at first, otherwise westerly or northwesterly 5 or 6.  Very rough at first in southeast, otherwise moderate or rough.  Rain then showers.  Moderate or good." 
+# Check via the actual website: http://www.metoffice.gov.uk/public/weather/marine-shipping-forecast-printable
+
 ##How
 Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
 
