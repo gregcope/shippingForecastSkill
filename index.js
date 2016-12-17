@@ -66,6 +66,24 @@ var areaCodeMap = {
   "South east Iceland" : "31"
 };
 
+// end of global vars
+
+// start from here
+// from https://github.com/alexa/alexa-skills-kit-sdk-for-nodejs
+var Alexa = require('alexa-sdk');
+
+exports.handler = function(event, context, callback){
+    var alexa = Alexa.handler(event, context);
+};
+
+var handlers = {
+
+    'ShippingForecast': function () {
+        this.emit(':tell', 'Hello World!');
+    }
+
+};
+
 // some logging at kickoff
 console.log('Starting shippingSkill');
 console.log("Argument / area to look for:", process.argv[2]);

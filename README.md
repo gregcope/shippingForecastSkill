@@ -12,5 +12,8 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 ##Howto
 install npm install --save alexa-sdk
 
+##Command line
+node shippingSkill.js "South east Iceland"
+
 ##Licence
 GNU GPL v3
