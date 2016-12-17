@@ -338,6 +338,8 @@ function foreCast(str, areaNumber) {
       // shipIssueTime[21] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
       var re = new RegExp('shipIssueTime\\[' + areaNumber + '\\] = \\"(\\d{2})(\\d{2}).*\\"');
       var regResults = str.match(re);
+      // split up times line 1030 as alexa tries to prounce these as one thousand and thiry
+      // not ten thirty - hence the split
       var timeWithSpace = regResults[1] + " " + regResults[2];
       return timeWithSpace;
     }
