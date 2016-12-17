@@ -90,36 +90,36 @@ ShippingForecast.prototype.intentHandlers = {
 // an object of all the shipping areas
 // so that we can parse the response
 var AREAS = {
-  "Viking" : "1",
-  "North Utsire" : "2",
-  "South Utsire" : "3",
-  "Forties" : "4",
-  "Cromarty" : "5",
-  "Forth" : "6",
-  "Tyne" : "7",
-  "Dogger" : "8",
-  "Fisher" : "9",
-  "German Bight" : "10",
-  "Humber" : "11",
-  "Thames" : "12",
-  "Dover" : "13",
-  "White" : "14",
-  "Portland" : "15",
-  "Plymouth" : "16",
-  "Biscay" : "17",
-  "Trafalgar" : "18",
-  "FitzRoy" : "19",
-  "Sole" : "20",
-  "Lundy" : "21",
-  "Fastnet" : "22",
-  "Irish Sea" : "23",
-  "Shannon" : "24",
-  "Rockall": "25",
-  "Malin" : "26",
-  "Hebrides" : "27",
-  "Bailey" : "28",
-  "Fair Isle" : "29",
-  "Faeroes" : "30",
+  "viking" : "1",
+  "north utsire" : "2",
+  "south utsire" : "3",
+  "forties" : "4",
+  "cromarty" : "5",
+  "forth" : "6",
+  "tyne" : "7",
+  "dogger" : "8",
+  "fisher" : "9",
+  "german bight" : "10",
+  "humber" : "11",
+  "thames" : "12",
+  "dover" : "13",
+  "white" : "14",
+  "portland" : "15",
+  "plymouth" : "16",
+  "biscay" : "17",
+  "trafalgar" : "18",
+  "fitzroy" : "19",
+  "sole" : "20",
+  "lundy" : "21",
+  "fastnet" : "22",
+  "irish Sea" : "23",
+  "shannon" : "24",
+  "rockall": "25",
+  "malin" : "26",
+  "hebrides" : "27",
+  "bailey" : "28",
+  "fair isle" : "29",
+  "faeroes" : "30",
   // This is actually "South-east Iceland" in the JS file
   "South east Iceland" : "31"
 };
@@ -219,6 +219,7 @@ function handleOneshotForecastRequest(intent, session, response) {
     var areaNumber = getAreaNumberFromIntent(intent, true),
         repromptText,
         speechOutput;
+    console.log("handleOneshotForecastRequest: areaNumber: "+areaNumber);
     if (areaNumber.error) {
         // invalid Area. move to the dialog
         repromptText = "Currently, I know forecast information for these Areas: " + getAllAreasText()
@@ -348,31 +349,38 @@ function foreCast(str, areaNumber) {
  */
 function getAreaNumberFromIntent(intent, assignDefault) {
 
-    var areaSlot = intent.slots.Area;
+    var areaSlot = intent.slots.area;
     // slots can be missing, or slots can be provided but with empty value.
     // must test for both.
+    console.log("getAreaNumberFromIntent: areaSlot is: "+areaSlot);
     if (!areaSlot || !areaSlot.value) {
+        console.log("getAreaNumberFromIntent: areaSlot or areaSlot.value undefined");
         if (!assignDefault) {
+            console.log("getAreaNumberFromIntent: assignDefault is false");
             return {
                 error: true
             }
         } else {
+            console.log("getAreaNumberFromIntent: returing default areaNumber: 14");
             // For sample skill, default to White.
-            return {
-                area: 'White',
-                areaNumber: AREAS.White
-            }
+            return 14;
+            // return {
+            //    area: 'White',
+            //    areaNumber: AREAS.White
+            //}
         }
     } else {
         // lookup the area
         var areaName = areaSlot.value;
         console.log("getAreaNumberFromIntent: Looking for: "+areaSlot.value);
         if (AREAS[areaName.toLowerCase()]) {
+            console.log("getAreaNumberFromIntent found: "+AREAS[areaName.toLowerCase()]);
             return {
                 area: areaName,
                 areaNumber: AREAS[areaName.toLowerCase()]
             }
         } else {
+            console.log("getAreaNumberFromIntent did not find: "+AREAS[areaName.toLowerCase()]);
             return {
                 error: true,
                 area: areaName
@@ -385,7 +393,7 @@ function getAreaNumberFromIntent(intent, assignDefault) {
 // create a list of all the areas
 //
 function getAllAreasText() {
-    var AreasList = '';
+    var areaList = '';
     for (var area in AREAS) {
         areaList += area + ", ";
     }
