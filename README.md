@@ -13,12 +13,12 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
 
 ##Build
-# Clone repo
-# cd src
-# <hack files>
-# zip f.zip *
-# upload to zip to AWS lambda
-# profit
+1. Clone repo
+2. cd src
+3. <hack files>
+4. zip f.zip *
+5. upload to zip to AWS lambda
+6. profit
 
 ##Command line
 node shippingSkill.js "South east Iceland"
