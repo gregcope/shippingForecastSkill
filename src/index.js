@@ -6,8 +6,10 @@ var APP_ID = 'amzn1.ask.skill.78c18798-6711-4f41-80bb-6efc669ce296';
 
 //arn:aws:lambda:eu-west-1:517900834313:function:shippingForecast
 
-
 var http = require('http');
+var xml2js = require ('xml2js');
+//var parser = new xml2js.Parser();
+var parser = new xml2js.Parser({explicitArray : false});
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -121,7 +123,7 @@ var AREAS = {
   "fair isle" : "29",
   "faeroes" : "30",
   // This is actually "South-east Iceland" in the JS file
-  "South east Iceland" : "31"
+  "Southeast Iceland" : "31"
 };
 
 function handleWelcomeRequest(response) {
@@ -182,7 +184,7 @@ function handleAreaDialogRequest(intent, session, response) {
         repromptText = "Currently, I know forecast information for these Areas: " + getAllAreasText()
             + "Which Area would you like forecast information for?";
         // if we received a value for the incorrect area, repeat it to the user, otherwise we received an empty slot
-        speechOutput = areaNumber.area ? "I'm sorry, I don't have any forecast for " + areaNumber.area + ". " + repromptText : repromptText;
+        speechOutput = area ? "I'm sorry, I don't have any forecast for " + area + ". " + repromptText : repromptText;
         response.ask(speechOutput, repromptText);
         return;
     }
@@ -219,31 +221,31 @@ function handleOneshotForecastRequest(intent, session, response) {
     var areaNumber = getAreaNumberFromIntent(intent, true),
         repromptText,
         speechOutput;
-    console.log("handleOneshotForecastRequest: areaNumber: "+areaNumber.areaNumber);
+    console.log("handleOneshotForecastRequest: area: "+area);
     if (areaNumber.error) {
         // invalid Area. move to the dialog
         repromptText = "Currently, I know forecast information for these Areas: " + getAllAreasText()
             + "Which Area would you like forecast information for?";
         // if we received a value for the incorrect Area, repeat it to the user, otherwise we received an empty slot
-        speechOutput = areaNumber.area ? "I'm sorry, I don't have any forecast for " + areaNumber.area + ". " + repromptText : repromptText;
+        speechOutput = area ? "I'm sorry, I don't have any forecast for " + area + ". " + repromptText : repromptText;
 
         response.ask(speechOutput, repromptText);
         return;
     }
 
     // all slots filled, either from the user or by default values. Move to final request
-    getFinalForecastResponse(areaNumber.areaNumber, response);
+    getFinalForecastResponse(area, response);
 }
 
 /**
  * Both the one-shot and dialog based paths lead to this method to issue the request, and
  * respond to the user with the final answer.
  */
-function getFinalForecastResponse(areaNumber, response) {
+function getFinalForecastResponse(area, response) {
 
     // Issue the request, and respond to the user
-    console.log("getFinalForecastResponse: looking for areaNumber: "+areaNumber);
-    makeForecastRequest(areaNumber, function forecastResponseCallback(err, ForecastResponse) {
+    console.log("getFinalForecastResponse: looking for area: "+area);
+    makeForecastRequest(area, function forecastResponseCallback(err, ForecastResponse) {
         var speechOutput;
 
         if (err) {
@@ -260,14 +262,14 @@ function getFinalForecastResponse(areaNumber, response) {
 }
 
 /**
- * Fetch the Met Office JS file
- * http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js
+ * Fetch the Met Office XML file
+ * http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
  */
 
-function makeForecastRequest(areaNumber, forecastResponseCallback) {
+function makeForecastRequest(area, forecastResponseCallback) {
 
-    console.log("makeForecastRequest: looking for areaNumnber: "+areaNumber);
-    var metURI = 'http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js';
+    console.log("makeForecastRequest: looking for area: "+area);
+    var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
 
     http.get(metURI, function (res) {
         var metResponseString = '';
@@ -282,70 +284,71 @@ function makeForecastRequest(areaNumber, forecastResponseCallback) {
         });
 
         res.on('end', function () {
-                var forecast = foreCast(metResponseString, areaNumber);
-                console.log("makeForecastRequest: have metResponseString: "+metResponseString+". areaNumber: "+areaNumber);
-                var alexaReply = forecast.area() + '.  Issued at ' +forecast.time() + 'UTC.  ' + forecast.wind() + '  ' + forecast.seastate() + '  ' + forecast.weather() + '  ' + forecast.visibility();
-                forecastResponseCallback(null, alexaReply);
+            // so we have a response to parse.
+	    console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area);
+            //var forecast = foreCast(metResponseString, area);
+            var areaForecasts = [];
+	    var areas = {};
+	    var forecast = '';
+	    var alexaResponse = '';
+	    // parse XML into parser
+	    parser.parseString(str, function(err, results) {
+	        // get the issue time
+		var issue = results['report']['issue'];
+                // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
+                // with split should be the more correct "ten thirty UTC"
+                // or 09 00 UTC
+                // but 12 00 UTC might sound odd
+		var re = new RegExp('(\\d{2})(\\d{2})');
+		var regResults = issue.$.time.match(re);
+                var issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
+		console.log('Issue time is: ' + issueTime);
+
+		// get areas
+	        areaForecasts = results['report']['area-forecasts']['area-forecast'];
+		// iterate over the parsed response, looking for the area
+		for (var i = 0; i < areaForecasts.length; i++) {
+		    // as the met office gives condensed forecasts
+		    // you need to parse for two sorts of responses
+                    // firstly the singular response
+		    if ( areaForecasts[i].area.length == undefined ) {
+		        if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
+			   // match!!!!!
+			   alexaResponse = areaForecasts[i].area.main
+			     + '.  Issued at ' + issueTime
+			     + areaForecasts[i].wind + ' '
+			     + areaForecasts[i].seastate + ' '
+			     + areaForecasts[i].weather + ' '
+			     + areaForecasts[i].visibility;
+			}
+		    } else {
+		        // okay - so it is multidemensional response
+			// so we need to split it
+		        var main = [];
+			main = areaForecasts[i].all.split(', ');
+			for (var k = 0; k < main.length; k++) {
+			    // Look for match
+			    if ( main[k].toLowerCase() == area.toLowerCase() ) {
+			        // match!!!!
+				alexaResponse = main[k]
+				  + '.  Issued at ' + issueTime
+				  + areaForecasts[i].area[k].wind + '  '
+				  + areaForecasts[i].area[k].seastate + '  '
+				  + areaForecasts[i].area[k].weather + ' '
+				  + areaForecasts[i].area[k].visibility;
+                            }
+			}
+		    }
+		}
+            });
+
+	    // we should have a reponse to send
+            forecastResponseCallback(null, alexaReply);
         });
     }).on('error', function (e) {
         console.log("Communications error: " + e.message);
         forecastResponseCallback(new Error(e.message));
     });
-}
-
-// function to regex the http response metResponseString
-// looking for parts of the shipping forcast, by areaNumber
-// each return, returns text, no quotes
-// got from https://code.tutsplus.com/tutorials/you-dont-know-anything-about-regular-expressions-a-complete-guide--net-7869
-function foreCast(str, areaNumber) {
-  console.log("foreCast: Looking for area: "+areaNumber);
-  //console.log("in string: '",str,"'");
-  return {
-    area : function() {
-      var re = new RegExp('area\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    wind : function() {
-      // wind[14] = "Southerly or southwesterly 4 or 5, occasionally 6 at first.";
-      // console.log("in wind function");
-      var re = new RegExp('wind\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      //console.log(re);
-      var regResults = str.match(re);
-      //console.log(regResults[1]);
-      return regResults[1];
-    },
-    weather : function() {
-      // weather[14] = "Rain later.";
-      // console.log("in weather function");
-      var re = new RegExp('weather\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    visibility : function() {
-      // visibility[14] = "Moderate or good.";
-      // console.log("in visibility function");
-      var re = new RegExp('visibility\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    seastate : function () {
-      // seastate[14] = "Slight or moderate.";
-      // console.log("in seastate function");
-      var re = new RegExp('seastate\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    time : function () {
-      // shipIssueTime[21] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
-      var re = new RegExp('shipIssueTime\\[' + areaNumber + '\\] = \\"(\\d{2})(\\d{2}).*\\"');
-      var regResults = str.match(re);
-      // split up times line 1030 as alexa tries to prounce these as one thousand and thiry
-      // not ten thirty - hence the split
-      var timeWithSpace = regResults[1] + " " + regResults[2];
-      return timeWithSpace;
-    }
-  }
 }
 
 /**
@@ -365,10 +368,10 @@ function getAreaNumberFromIntent(intent, assignDefault) {
                 error: true
             }
         } else {
-            console.log("getAreaNumberFromIntent: returing default areaNumber: 14");
+            console.log("getAreaNumberFromIntent: returing default area: Wight");
             // For sample skill, default to White.
              return {
-                area: 'White',
+                area: 'Wight',
                 areaNumber: 14
             }
         }
