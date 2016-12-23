@@ -20,7 +20,8 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 * xml2js node libary
 
 ##How
-Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
+* Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
+* And https://en.wikibooks.org/wiki/XQuery/UK_shipping_forecast
 
 ##Build
 1. Clone repo

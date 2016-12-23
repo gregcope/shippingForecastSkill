@@ -14,16 +14,16 @@
 
 // Global Variables to use
 var xml2js = require ('xml2js');
-var parser = new xml2js.Parser();
-
+//var parser = new xml2js.Parser();
+var parser = new xml2js.Parser({explicitArray : false});
 
 // areas/numbers
 var areaNumber = '';
 var area = '';
 
-// http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js
+// XML Forecast, so 1990's..
 var metHost = 'www.metoffice.gov.uk';
-var metPath = '/lib/includes/marine/gale_and_shipping_table.js';
+var metPath = '/public/data/CoreProductCache/ShippingForecast/Latest';
 
 // string for HTTP response
 var str = '';
@@ -126,13 +126,49 @@ callback = function(response) {
 // TODO Timeout
 // TODO error trap (503/404)
 function callback_function(str) {
-  console.log('done!');
+
+  // based on https://github.com/hubot-scripts/hubot-shipping-forecast/blob/master/src/shipping-forecast.coffee
+  console.log('Parsing XML');
+
+  var forecasts = '';
+  var areas = [];
+  var forecast = '';
+
+  // parse XML into parser
+  parser.parseString(str, function(err, results) {
+   
+  //console.log(JSON.stringify(results));
+
+  // get the issue time
+  var issue = results['report']['issue'];
+
+  var re = new RegExp('(\\d{2})(\\d{2})');
+  var regResults = issue.$.time.match(re);
+  // split up times line 1030 as alexa tries to prounce these as one thousand and thiry
+  // not ten thirty - hence the split
+  var issueTime = regResults[1] + " " + regResults[2] + " UTC.";
+  
+  console.log('Issue time is: ' + issueTime);
+
+  // get areas
+  //forecasts = results['report']['area-forecasts']['area-forecast']; 
+  //console.log("forecasts: "+JSON.stringify(forecasts));
+
+  //console.log("areaforecast: "+JSON.stringify(forecasts, undefined, 2)); 
+
+  //console.log("forecasts length is: "+forecasts.length);
+
+  //for (var i = 0; i < forecasts.length; i++) {
+  //  var area = forecast[i];
+  //  console.log(area.main);
+  });
+
 
   // build the text response, assuming it is all cushty
   // TODO error trapping like area not there
-  f = foreCast(str, areaNumber);
-  alexaReply = f.area() + '.  Issued at ' +f.time() + 'UTC.  ' + f.wind() + '  ' + f.seastate() + '  ' + f.weather() + '  ' + f.visibility();
-  console.log(alexaReply);
+  //f = foreCast(str, areaNumber);
+  //alexaReply = f.area() + '.  Issued at ' +f.time() + 'UTC.  ' + f.wind() + '  ' + f.seastate() + '  ' + f.weather() + '  ' + f.visibility();
+  //console.log(alexaReply);
 }
 
 // function to regex the http response
