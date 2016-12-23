@@ -48,7 +48,7 @@ var areaCodeMap = {
   "Humber" : "11",
   "Thames" : "12",
   "Dover" : "13",
-  "White" : "14",
+  "Wight" : "14",
   "Portland" : "15",
   "Plymouth" : "16",
   "Biscay" : "17",
@@ -66,15 +66,20 @@ var areaCodeMap = {
   "Fair Isle" : "29",
   "Faeroes" : "30",
   // This is actually "South-east Iceland" in the JS file
-  "South east Iceland" : "31"
+  // "Southeast Iceland" in XML
+  "Southeast Iceland" : "31"
 };
 
 // some logging at kickoff
 console.log('Starting shippingSkill');
-console.log("Argument / area to look for:", process.argv[2]);
-
 // pull out the first arg to the script
 area = process.argv[2];
+console.log("Argument / area to look for:", process.argv[2]);
+
+// alexa sends white as arg, which we need to change
+if ( area.toLowerCase() == "white" ) {
+  area = "Wight";
+}
 
 // check for an argument
 if ( area == undefined ) {
@@ -130,97 +135,72 @@ function callback_function(str) {
   // based on https://github.com/hubot-scripts/hubot-shipping-forecast/blob/master/src/shipping-forecast.coffee
   console.log('Parsing XML');
 
-  var forecasts = '';
-  var areas = [];
+  var areaForecasts = [];
+  var areas = {};
   var forecast = '';
 
   // parse XML into parser
   parser.parseString(str, function(err, results) {
    
-  //console.log(JSON.stringify(results));
+    // get the issue time
+    var issue = results['report']['issue'];
+    var alexaResponse = '';
 
-  // get the issue time
-  var issue = results['report']['issue'];
-
-  var re = new RegExp('(\\d{2})(\\d{2})');
-  var regResults = issue.$.time.match(re);
-  // split up times line 1030 as alexa tries to prounce these as one thousand and thiry
-  // not ten thirty - hence the split
-  var issueTime = regResults[1] + " " + regResults[2] + " UTC.";
+    var re = new RegExp('(\\d{2})(\\d{2})');
+    var regResults = issue.$.time.match(re);
+    // split up times line 1030 as alexa tries to prounce these as one thousand and thiry
+    // not ten thirty - hence the split
+    var issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
   
-  console.log('Issue time is: ' + issueTime);
+    console.log('Issue time is: ' + issueTime);
 
-  // get areas
-  //forecasts = results['report']['area-forecasts']['area-forecast']; 
-  //console.log("forecasts: "+JSON.stringify(forecasts));
+    // get areas
+    areaForecasts = results['report']['area-forecasts']['area-forecast']; 
+    //console.log("forecasts: "+JSON.stringify(forecasts));
 
-  //console.log("areaforecast: "+JSON.stringify(forecasts, undefined, 2)); 
+    //console.log("areaforecasts: "+JSON.stringify(areaForecasts, undefined, 2)); 
 
-  //console.log("forecasts length is: "+forecasts.length);
+    //console.log("forecasts length is: "+forecasts.length);
 
-  //for (var i = 0; i < forecasts.length; i++) {
-  //  var area = forecast[i];
-  //  console.log(area.main);
-  });
+    for (var i = 0; i < areaForecasts.length; i++) {
+      //console.log("moooooo: "+JSON.stringify(areaForecasts[i], undefined, 2));
+      //console.log("all: "+areaForecasts[i].all);
+      //console.log("area: "+JSON.stringify(areaForecasts[i].area, undefined, 2));
+      //console.log("area.length: "+areaForecasts[i].area.length);
 
-
-  // build the text response, assuming it is all cushty
-  // TODO error trapping like area not there
-  //f = foreCast(str, areaNumber);
-  //alexaReply = f.area() + '.  Issued at ' +f.time() + 'UTC.  ' + f.wind() + '  ' + f.seastate() + '  ' + f.weather() + '  ' + f.visibility();
-  //console.log(alexaReply);
-}
-
-// function to regex the http response
-// looking for parts of the shipping forcast, by areaNumber
-// each return, returns text, no quotes
-// got from https://code.tutsplus.com/tutorials/you-dont-know-anything-about-regular-expressions-a-complete-guide--net-7869
-function foreCast(str, areaNumber) {
-  console.log("Looking for area: '",areaNumber,"'");
-  //console.log("in string: '",str,"'");
-  return {
-    area : function() {
-      var re = new RegExp('area\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    wind : function() {
-      // wind[14] = "Southerly or southwesterly 4 or 5, occasionally 6 at first.";
-      // console.log("in wind function");
-      var re = new RegExp('wind\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      //console.log(re);
-      var regResults = str.match(re); 
-      //console.log(regResults[1]);
-      return regResults[1];
-    },
-    weather : function() {
-      // weather[14] = "Rain later.";
-      // console.log("in weather function");
-      var re = new RegExp('weather\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    visibility : function() {
-      // visibility[14] = "Moderate or good.";
-      // console.log("in visibility function");
-      var re = new RegExp('visibility\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    seastate : function () {
-      // seastate[14] = "Slight or moderate.";
-      // console.log("in seastate function");
-      var re = new RegExp('seastate\\[' + areaNumber + '\\] = \\"(.*)\\"');
-      var regResults = str.match(re);
-      return regResults[1];
-    },
-    time : function () {
-      // shipIssueTime[21] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
-      var re = new RegExp('shipIssueTime\\[' + areaNumber + '\\] = \\"(\\d{4}).*\\"');
-      var regResults = str.match(re);
-      return regResults[1];
+      if ( areaForecasts[i].area.length == undefined ) {
+        if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
+          alexaResponse = areaForecasts[i].area.main 
+            + '.  Issued at ' + issueTime 
+            + areaForecasts[i].wind + ' '
+            + areaForecasts[i].seastate + ' ' 
+            + areaForecasts[i].weather + ' '
+            + areaForecasts[i].visibility;
+          console.log(alexaResponse);
+        }
+        // area, issue, wind, seastate, weather, visibility
+      } else {
+        //console.log("main that needs to be split is: " + areaForecasts[i].all);
+        var main = [];
+        main = areaForecasts[i].all.split(', ');
+        // more than one stanza
+        for (var k = 0; k < main.length; k++) {
+          if ( main[k].toLowerCase() == area.toLowerCase() ) {
+            //console.log("area: "+JSON.stringify(areaForecasts[i].area, undefined, 2));
+            //console.log("wind: "+JSON.stringify(areaForecasts[i].area[k].wind, undefined, 2));
+            alexaResponse = main[k] 
+              + '.  Issued at ' + issueTime 
+              + areaForecasts[i].area[k].wind + '  ' 
+              + areaForecasts[i].area[k].seastate + '  ' 
+              + areaForecasts[i].area[k].weather + ' '
+              + areaForecasts[i].area[k].visibility;
+            console.log(alexaResponse);
+          }
+        }
+      }
     }
-  }
+
+  });
 }
 
 http.request(options, callback).end();
