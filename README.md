@@ -2,12 +2,12 @@ Amazon Alexa skill for the UK Met office Shipping forecast
 ----------------------------------------------------------
 
 ##Description
-A simple NodeJS skill that downloads the forecast in JS, and parses out the area the person has asked for
+A simple NodeJS skill that downloads the forecast in XML, and parses out the area the person has asked for
 
 * Takes one area as an argument
-* Downloads http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js
-* regex's out the relevant area
-* returns Forecast
+* Downloads www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
+* Parses XML looking for area
+* Returns Forecast
 
 ##Usage (once configured)
 * get shipping forecast for Viking
@@ -16,12 +16,11 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 
 ##Dependencies
 * Internet access to get to Met Office forecast
-* Met Office Forecast to be avaliable, responseive and corrrect
+* Met Office Forecast to be avaliable, responseive and corrrect!!!!
 * xml2js node libary
 
 ##How
 * Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
-* And https://en.wikibooks.org/wiki/XQuery/UK_shipping_forecast
 
 ##Build
 1. Clone repo
@@ -32,7 +31,10 @@ A simple NodeJS skill that downloads the forecast in JS, and parses out the area
 6. profit
 
 ##Command line
-node shippingSkill.js "South east Iceland"
+node shippingSkillXML.js "Southeast Iceland"
 
 ##Licence
 GNU GPL v3
+
+##Note about the Met office JS file
+This file: http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js is constantly giving forecasts for 1030 UTC, October 28.  Not helpfull.  The code on here: https://en.wikibooks.org/wiki/XQuery/UK_shipping_forecast WILL NOT WORK due to the met office.  They seem unable to fix it...
