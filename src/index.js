@@ -218,11 +218,11 @@ function handleNoSlotDialogRequest(intent, session, response) {
 function handleOneshotForecastRequest(intent, session, response) {
 
     // Determine area, using default if none provided
-    var areaNumber = getAreaNumberFromIntent(intent, true),
+    var area = getAreaFromIntent(intent, true),
         repromptText,
         speechOutput;
-    console.log("handleOneshotForecastRequest: area: "+area);
-    if (areaNumber.error) {
+    console.log("handleOneshotForecastRequest: area: "+area.area);
+    if (area.error) {
         // invalid Area. move to the dialog
         repromptText = "Currently, I know forecast information for these Areas: " + getAllAreasText()
             + "Which Area would you like forecast information for?";
@@ -234,7 +234,7 @@ function handleOneshotForecastRequest(intent, session, response) {
     }
 
     // all slots filled, either from the user or by default values. Move to final request
-    getFinalForecastResponse(area, response);
+    getFinalForecastResponse(area.area, response);
 }
 
 /**
@@ -270,13 +270,14 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
     console.log("makeForecastRequest: looking for area: "+area);
     var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
+    var alexaReply = '';
 
     http.get(metURI, function (res) {
         var metResponseString = '';
-        console.log('Status Code: ' + res.statusCode);
+        console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
 
         if (res.statusCode != 200) {
-            forecastResponseCallback(new Error("Non 200 Response"));
+            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI));
         }
 
         res.on('data', function (data) {
@@ -285,14 +286,21 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
         res.on('end', function () {
             // so we have a response to parse.
+
+            if ( area.toLowerCase() == "white" ) {
+              console.log("makeForecastRequest: area is white, changing to Wight");
+              area = "Wight";
+            }
+
 	    console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area);
+
+            
             //var forecast = foreCast(metResponseString, area);
             var areaForecasts = [];
 	    var areas = {};
 	    var forecast = '';
-	    var alexaResponse = '';
 	    // parse XML into parser
-	    parser.parseString(str, function(err, results) {
+	    parser.parseString(metResponseString, function(err, results) {
 	        // get the issue time
 		var issue = results['report']['issue'];
                 // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
@@ -301,8 +309,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
                 // but 12 00 UTC might sound odd
 		var re = new RegExp('(\\d{2})(\\d{2})');
 		var regResults = issue.$.time.match(re);
-                var issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
-		console.log('Issue time is: ' + issueTime);
+                var issueTime = regResults[1] + " " + regResults[2] + " U T C. ";
+		console.log('makeForecastRequest: Issue time is: ' + issueTime);
 
 		// get areas
 	        areaForecasts = results['report']['area-forecasts']['area-forecast'];
@@ -314,7 +322,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		    if ( areaForecasts[i].area.length == undefined ) {
 		        if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
 			   // match!!!!!
-			   alexaResponse = areaForecasts[i].area.main
+			   alexaReply = areaForecasts[i].area.main
 			     + '.  Issued at ' + issueTime
 			     + areaForecasts[i].wind + ' '
 			     + areaForecasts[i].seastate + ' '
@@ -330,7 +338,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			    // Look for match
 			    if ( main[k].toLowerCase() == area.toLowerCase() ) {
 			        // match!!!!
-				alexaResponse = main[k]
+				alexaReply = main[k]
 				  + '.  Issued at ' + issueTime
 				  + areaForecasts[i].area[k].wind + '  '
 				  + areaForecasts[i].area[k].seastate + '  '
@@ -340,6 +348,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			}
 		    }
 		}
+                console.log('makeForecastRequest: forecast found is: '+alexaReply);
             });
 
 	    // we should have a reponse to send
@@ -354,42 +363,41 @@ function makeForecastRequest(area, forecastResponseCallback) {
 /**
  * Gets the city from the intent, or returns an error
  */
-function getAreaNumberFromIntent(intent, assignDefault) {
+function getAreaFromIntent(intent, assignDefault) {
 
     var areaSlot = intent.slots.area;
     // slots can be missing, or slots can be provided but with empty value.
     // must test for both.
-    console.log("getAreaNumberFromIntent: areaSlot is: "+areaSlot);
+    console.log("getAreaFromIntent: areaSlot is: "+areaSlot);
     if (!areaSlot || !areaSlot.value) {
-        console.log("getAreaNumberFromIntent: areaSlot or areaSlot.value undefined");
+        console.log("getAreaFromIntent: areaSlot or areaSlot.value undefined");
         if (!assignDefault) {
-            console.log("getAreaNumberFromIntent: assignDefault is false");
+            console.log("getAreaFromIntent: assignDefault is false");
             return {
                 error: true
             }
         } else {
-            console.log("getAreaNumberFromIntent: returing default area: Wight");
+            console.log("getAreaFromIntent: returing default area: wight");
             // For sample skill, default to White.
              return {
-                area: 'Wight',
-                areaNumber: 14
+                area: 'wight'
             }
         }
     } else {
         // lookup the area
         var areaName = areaSlot.value;
-        console.log("getAreaNumberFromIntent: Looking for: "+areaSlot.value);
+        console.log("getAreaFromIntent: Looking for: "+areaSlot.value);
         if (AREAS[areaName.toLowerCase()]) {
-            console.log("getAreaNumberFromIntent found: "+AREAS[areaName.toLowerCase()]);
+            console.log("getAreaFromIntent found: "+areaName.toLowerCase());
             return {
-                area: areaName,
-                areaNumber: AREAS[areaName.toLowerCase()]
+                area: areaName.toLowerCase()
+                //areaNumber: AREAS[areaName.toLowerCase()]
             }
         } else {
-            console.log("getAreaNumberFromIntent did not find: "+AREAS[areaName.toLowerCase()]);
+            console.log("getAreaFromIntent did not find: "+areaName.toLowerCase());
             return {
                 error: true,
-                area: areaName
+                area: areaName.toLowerCase()
             }
         }
     }

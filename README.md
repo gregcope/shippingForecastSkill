@@ -18,6 +18,8 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Internet access to get to Met Office forecast
 * Met Office Forecast to be avaliable, responseive and corrrect!!!!
 * xml2js node libary
+* cd shippingForecastSkill/src/
+* npm install --prefix=~/shippingForecastSkill/src xml2js
 
 ##How
 * Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
