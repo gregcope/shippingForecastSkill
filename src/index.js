@@ -309,7 +309,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
                 // but 12 00 UTC might sound odd
 		var re = new RegExp('(\\d{2})(\\d{2})');
 		var regResults = issue.$.time.match(re);
-                var issueTime = regResults[1] + " " + regResults[2] + " U T C. ";
+                var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
 		console.log('makeForecastRequest: Issue time is: ' + issueTime);
 
 		// get areas
@@ -324,9 +324,9 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			   // match!!!!!
 			   alexaReply = areaForecasts[i].area.main
 			     + '.  Issued at ' + issueTime
-			     + areaForecasts[i].wind + ' '
-			     + areaForecasts[i].seastate + ' '
-			     + areaForecasts[i].weather + ' '
+			     + areaForecasts[i].wind + '  '
+			     + areaForecasts[i].seastate + '  '
+			     + areaForecasts[i].weather + '  '
 			     + areaForecasts[i].visibility;
 			}
 		    } else {
@@ -340,9 +340,9 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			        // match!!!!
 				alexaReply = main[k]
 				  + '.  Issued at ' + issueTime
-				  + areaForecasts[i].area[k].wind + '  '
-				  + areaForecasts[i].area[k].seastate + '  '
-				  + areaForecasts[i].area[k].weather + ' '
+				  + areaForecasts[i].area[k].wind + '   '
+				  + areaForecasts[i].area[k].seastate + '   '
+				  + areaForecasts[i].area[k].weather + '  '
 				  + areaForecasts[i].area[k].visibility;
                             }
 			}
