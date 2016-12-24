@@ -368,7 +368,7 @@ function getAreaFromIntent(intent, assignDefault) {
     var areaSlot = intent.slots.area;
     // slots can be missing, or slots can be provided but with empty value.
     // must test for both.
-    console.log("getAreaFromIntent: areaSlot is: "+areaSlot);
+    console.log("getAreaFromIntent: areaSlot.value is: "+areaSlot.value);
     if (!areaSlot || !areaSlot.value) {
         console.log("getAreaFromIntent: areaSlot or areaSlot.value undefined");
         if (!assignDefault) {
