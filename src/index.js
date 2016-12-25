@@ -317,7 +317,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		//console.log("gales: "+JSON.stringify(gales, undefined, 2));
 		for ( var g = 0; g < gales.length; g++ ) {
 		  if ( gales[g].toLowerCase() == area.toLowerCase() ) {
-		    alexaResponse = "Gale warning!  ";
+		    alexaReply = "Gale warning!  ";
 			console.log("makeForecastRequest: Gale warning for: "+area);
 		  }
 		}
