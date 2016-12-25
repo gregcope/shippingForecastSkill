@@ -138,6 +138,7 @@ function callback_function(str) {
   var areaForecasts = [];
   var areas = {};
   var forecast = '';
+  var gales = [];
 
   // parse XML into parser
   parser.parseString(str, function(err, results) {
@@ -153,6 +154,16 @@ function callback_function(str) {
     var issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
   
     console.log('Issue time is: ' + issueTime);
+
+	// get Gales
+	gales = results['report']['gales']['shipping-area'];
+	console.log("gales: "+JSON.stringify(gales, undefined, 2)); 
+
+    for ( var g = 0; g < gales.length; g++ ) {
+	  if ( gales[g].toLowerCase() == area.toLowerCase() ) {
+	    alexaResponse = "Gale warning!  ";
+	  }
+	}
 
     // get areas
     areaForecasts = results['report']['area-forecasts']['area-forecast']; 
@@ -170,7 +181,7 @@ function callback_function(str) {
 
       if ( areaForecasts[i].area.length == undefined ) {
         if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
-          alexaResponse = areaForecasts[i].area.main 
+          alexaResponse = alexaResponse + areaForecasts[i].area.main 
             + '.  Issued at ' + issueTime 
             + areaForecasts[i].wind + ' '
             + areaForecasts[i].seastate + ' ' 
@@ -188,7 +199,7 @@ function callback_function(str) {
           if ( main[k].toLowerCase() == area.toLowerCase() ) {
             //console.log("area: "+JSON.stringify(areaForecasts[i].area, undefined, 2));
             //console.log("wind: "+JSON.stringify(areaForecasts[i].area[k].wind, undefined, 2));
-            alexaResponse = main[k] 
+            alexaResponse = alexaResponse + main[k] 
               + '.  Issued at ' + issueTime 
               + areaForecasts[i].area[k].wind + '  ' 
               + areaForecasts[i].area[k].seastate + '  ' 

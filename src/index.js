@@ -294,26 +294,36 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
 	    console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area);
 
-            
-            //var forecast = foreCast(metResponseString, area);
-            var areaForecasts = [];
+        var areaForecasts = [];
 	    var areas = {};
 	    var forecast = '';
+		var gales = [];
+
 	    // parse XML into parser
 	    parser.parseString(metResponseString, function(err, results) {
-	        // get the issue time
+	    // get the issue time
 		var issue = results['report']['issue'];
-                // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
-                // with split should be the more correct "ten thirty UTC"
-                // or 09 00 UTC
-                // but 12 00 UTC might sound odd
+        // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
+        // with split should be the more correct "ten thirty UTC"
+        // or 09 00 UTC
+        // but 12 00 UTC might sound odd
 		var re = new RegExp('(\\d{2})(\\d{2})');
 		var regResults = issue.$.time.match(re);
                 var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
 		console.log('makeForecastRequest: Issue time is: ' + issueTime);
 
+		// get Gale warnings
+		gales = results['report']['gales']['shipping-area'];
+		//console.log("gales: "+JSON.stringify(gales, undefined, 2));
+		for ( var g = 0; g < gales.length; g++ ) {
+		  if ( gales[g].toLowerCase() == area.toLowerCase() ) {
+		    alexaResponse = "Gale warning!  ";
+			console.log("makeForecastRequest: Gale warning for: "+area);
+		  }
+		}
+
 		// get areas
-	        areaForecasts = results['report']['area-forecasts']['area-forecast'];
+	    areaForecasts = results['report']['area-forecasts']['area-forecast'];
 		// iterate over the parsed response, looking for the area
 		for (var i = 0; i < areaForecasts.length; i++) {
 		    // as the met office gives condensed forecasts
@@ -322,7 +332,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		    if ( areaForecasts[i].area.length == undefined ) {
 		        if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
 			   // match!!!!!
-			   alexaReply = areaForecasts[i].area.main
+			   alexaReply = alexaReply + areaForecasts[i].area.main
 			     + '.  Issued at ' + issueTime
 			     + areaForecasts[i].wind + '  '
 			     + areaForecasts[i].seastate + '  '
@@ -338,7 +348,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			    // Look for match
 			    if ( main[k].toLowerCase() == area.toLowerCase() ) {
 			        // match!!!!
-				alexaReply = main[k]
+				alexaReply = alexaReply + main[k]
 				  + '.  Issued at ' + issueTime
 				  + areaForecasts[i].area[k].wind + '   '
 				  + areaForecasts[i].area[k].seastate + '   '
