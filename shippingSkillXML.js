@@ -158,7 +158,7 @@ function callback_function(str) {
 	issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
     issued = issueTime + issuedDate;
 
-    console.log('Issue time is: ' + issueTime);
+    console.log('Issued: ' + issued);
 
 	// get Gales
 	gales = results['report']['gales']['shipping-area'];
@@ -177,10 +177,6 @@ function callback_function(str) {
     //console.log("areaforecasts: "+JSON.stringify(areaForecasts, undefined, 2)); 
 
     //console.log("forecasts length is: "+forecasts.length);
-
-    //TODO - someareas have suplimental forecasts like Trafalgar;
-	// <area issuedate="2016-12-25" issuetime="0015">
-	// Need to look / parse for those.
 
     for (var i = 0; i < areaForecasts.length; i++) {
       //console.log("moooooo: "+JSON.stringify(areaForecasts[i], undefined, 2));

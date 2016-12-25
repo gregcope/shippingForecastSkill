@@ -346,7 +346,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			    var newIssue = areaForecasts[i].area.$.issuetime;
 				if ( newIssue != undefined ) {
 				  regResults = newIssue.match(re);
-				  issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
+				  issueTime = regResults[1] + " " + regResults[2] + " U T C. ";
 				  var d = new Date(areaForecasts[i].area.$.issuedate);
 				  issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
 				  issued = issueTime + issuedDate;
