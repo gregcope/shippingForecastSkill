@@ -9,13 +9,21 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Parses XML looking for area
 * Returns Forecast
 
+##Features
+* Will give gale Warning if area has a warning
+* Gives correct issue time and date, even for areas that have thier own seperate ones
+
+##TODO
+* Give synopsis
+* Give a forecast, at sessionStart
+
 ##Usage (once configured)
 * get shipping forecast for Viking
-* Should return something like; "Viking.  Issued at 10 30UTC.  Southwesterly 7 or gale 8 in southeast at first, otherwise westerly or northwesterly 5 or 6.  Very rough at first in southeast, otherwise moderate or rough.  Rain then showers.  Moderate or good." 
+* Should return something like; "Trafalgar.  Issued at 00 15 U T C.  25  December.  In south, easterly 5 to 7, occasionally gale 8 at first.  In north, variable 4.  In south, moderate or rough.  in north, moderate or rough, occasionally very rough at first.  In south, fair.  In north, occasional drizzle.  In south, good.  In north, good, occasionally poor."
 * Check via the actual website: http://www.metoffice.gov.uk/public/weather/marine-shipping-forecast-printable
 
 ##Dependencies
-* Internet access to get to Met Office forecast
+* Internet access to get to Met Office forecast!!!
 * Met Office Forecast to be avaliable, responseive and corrrect!!!!
 * xml2js node libary
 * cd shippingForecastSkill/src/
