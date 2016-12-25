@@ -4,21 +4,21 @@ Amazon Alexa skill for the UK Met office Shipping forecast
 ##Description
 A simple NodeJS skill that downloads the forecast in XML, and parses out the area the person has asked for
 
-* Takes one area as an argument
+* Takes one area as an argument (e.g. Dover)
 * Downloads www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
 * Parses XML looking for area
 * Returns Forecast
 
 ##Features
 * Will give gale Warning if area has a warning
-* Gives correct issue time and date, even for areas that have thier own seperate ones
+* Gives correct issue time and date, even for areas that sometimes have thier own seperate ones (e.g. Trafalgar)
 
 ##TODO
 * Give synopsis
 * Give a forecast, at sessionStart
 
 ##Usage (once configured)
-* get shipping forecast for Viking
+* "Get shipping forecast for Trafalgar."
 * Should return something like; "Trafalgar.  Issued at 00 15 U T C.  25  December.  In south, easterly 5 to 7, occasionally gale 8 at first.  In north, variable 4.  In south, moderate or rough.  in north, moderate or rough, occasionally very rough at first.  In south, fair.  In north, occasional drizzle.  In south, good.  In north, good, occasionally poor."
 * Check via the actual website: http://www.metoffice.gov.uk/public/weather/marine-shipping-forecast-printable
 
@@ -37,7 +37,7 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 2. cd src
 3. hack stuff
 4. zip f.zip *
-5. upload to zip to AWS lambda
+5. upload to zip to AWS lambda, configure Alexa Skill etc...
 6. profit
 
 ##Command line
