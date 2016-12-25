@@ -3,7 +3,7 @@
 / To take one argument (a sting)
 / Look it up in a shipping forecast area list
 / and if found, go fetch the full forcaste
-/ and find the relevant bit and return that
+/ and find the relevant bit and return that (console.out)
 /
 / <Greg Cope> greg.cope@gmail.com
 / 08-Dec-2016 Initial version
@@ -127,9 +127,6 @@ callback = function(response) {
   });
 }
 
-// callback to do stuff when we have a response
-// TODO Timeout
-// TODO error trap (503/404)
 function callback_function(str) {
 
   // based on https://github.com/hubot-scripts/hubot-shipping-forecast/blob/master/src/shipping-forecast.coffee
@@ -173,6 +170,10 @@ function callback_function(str) {
 
     //console.log("forecasts length is: "+forecasts.length);
 
+    //TODO - someareas have suplimental forecasts like Trafalgar;
+	// <area issuedate="2016-12-25" issuetime="0015">
+	// Need to look / parse for those.
+
     for (var i = 0; i < areaForecasts.length; i++) {
       //console.log("moooooo: "+JSON.stringify(areaForecasts[i], undefined, 2));
       //console.log("all: "+areaForecasts[i].all);
@@ -180,6 +181,7 @@ function callback_function(str) {
       //console.log("area.length: "+areaForecasts[i].area.length);
 
       if ( areaForecasts[i].area.length == undefined ) {
+	    console.log("areaForecasts[i].area.length == undefined for area: "+ areaForecasts[i].area.main);
         if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
           alexaResponse = alexaResponse + areaForecasts[i].area.main 
             + '.  Issued at ' + issueTime 
