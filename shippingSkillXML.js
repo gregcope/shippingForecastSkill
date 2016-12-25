@@ -76,11 +76,6 @@ console.log('Starting shippingSkill');
 area = process.argv[2];
 console.log("Argument / area to look for:", process.argv[2]);
 
-// alexa sends white as arg, which we need to change
-if ( area.toLowerCase() == "white" ) {
-  area = "Wight";
-}
-
 // check for an argument
 if ( area == undefined ) {
   // no argument?
@@ -96,6 +91,11 @@ if ( areaNumber = areaCodeMap[area] ) {
   // oh - not in list
   console.log("Sorry, I cannot do that Dave.  Cannot find area:",area,", in my shipping area list.  Please try again");
   process.exit(2);
+}
+
+// alexa sends white as arg, which we need to change
+if ( area.toLowerCase() == "white" ) {
+  area = "Wight";
 }
 
 // If we got this far we have found a shipping forecast area
