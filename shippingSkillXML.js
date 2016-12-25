@@ -136,6 +136,7 @@ function callback_function(str) {
   var areas = {};
   var forecast = '';
   var gales = [];
+  var issued = '';
 
   // parse XML into parser
   parser.parseString(str, function(err, results) {
@@ -144,17 +145,24 @@ function callback_function(str) {
     var issue = results['report']['issue'];
     var alexaResponse = '';
 
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+	  "July", "August", "September", "October", "November", "December" ];
+
     var re = new RegExp('(\\d{2})(\\d{2})');
     var regResults = issue.$.time.match(re);
     // split up times line 1030 as alexa tries to prounce these as one thousand and thiry
     // not ten thirty - hence the split
     var issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
-  
+
+	var d = new Date(issue.$.date);
+	issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+    issued = issueTime + issuedDate;
+
     console.log('Issue time is: ' + issueTime);
 
 	// get Gales
 	gales = results['report']['gales']['shipping-area'];
-	console.log("gales: "+JSON.stringify(gales, undefined, 2)); 
+	//console.log("gales: "+JSON.stringify(gales, undefined, 2)); 
 
     for ( var g = 0; g < gales.length; g++ ) {
 	  if ( gales[g].toLowerCase() == area.toLowerCase() ) {
@@ -181,10 +189,30 @@ function callback_function(str) {
       //console.log("area.length: "+areaForecasts[i].area.length);
 
       if ( areaForecasts[i].area.length == undefined ) {
-	    console.log("areaForecasts[i].area.length == undefined for area: "+ areaForecasts[i].area.main);
+	    //console.log("areaForecasts[i].area.length == undefined for area: "+ areaForecasts[i].area.main);
         if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
+		  
+		  //console.log("\n\narea" + JSON.stringify(areaForecasts[i].area, undefined, 2));
+		  var newIssue = areaForecasts[i].area.$.issuetime;
+		  if ( newIssue != undefined ) {
+		    console.log("newIssue is: "+newIssue);
+			regResults = newIssue.match(re);
+			issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
+			console.log("IssueTime Now is: "+issueTime);
+
+			//console.log("IssueDate is: "+areaForecasts[i].area.$.issuedate);
+			var d = new Date(areaForecasts[i].area.$.issuedate);
+
+			//console.log("Month is: " + monthNames[d.getMonth()]);
+			//console.log("Date is: "+ d.getDate());
+
+			issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+			issued = issueTime + issuedDate;
+			//console.log("issued: " + issued);
+		  }
+
           alexaResponse = alexaResponse + areaForecasts[i].area.main 
-            + '.  Issued at ' + issueTime 
+            + '.  Issued at ' + issued 
             + areaForecasts[i].wind + ' '
             + areaForecasts[i].seastate + ' ' 
             + areaForecasts[i].weather + ' '
@@ -202,7 +230,7 @@ function callback_function(str) {
             //console.log("area: "+JSON.stringify(areaForecasts[i].area, undefined, 2));
             //console.log("wind: "+JSON.stringify(areaForecasts[i].area[k].wind, undefined, 2));
             alexaResponse = alexaResponse + main[k] 
-              + '.  Issued at ' + issueTime 
+              + '.  Issued at ' + issued 
               + areaForecasts[i].area[k].wind + '  ' 
               + areaForecasts[i].area[k].seastate + '  ' 
               + areaForecasts[i].area[k].weather + ' '

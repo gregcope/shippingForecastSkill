@@ -298,6 +298,9 @@ function makeForecastRequest(area, forecastResponseCallback) {
 	    var areas = {};
 	    var forecast = '';
 		var gales = [];
+		var issued = '';
+		var monthNames = ["January", "February", "March", "April", "May", "June",
+		  "July", "August", "September", "October", "November", "December" ];
 
 	    // parse XML into parser
 	    parser.parseString(metResponseString, function(err, results) {
@@ -309,14 +312,23 @@ function makeForecastRequest(area, forecastResponseCallback) {
         // but 12 00 UTC might sound odd
 		var re = new RegExp('(\\d{2})(\\d{2})');
 		var regResults = issue.$.time.match(re);
-                var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
-		console.log('makeForecastRequest: Issue time is: ' + issueTime);
+        var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
+
+        // get the date
+        var d = new Date(issue.$.date);
+		// turn Month number back into Month name
+		var issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+		// string it all together now...
+        issued = issueTime + issuedDate;
+		console.log('makeForecastRequest: Issued: ' + issued);
 
 		// get Gale warnings
 		gales = results['report']['gales']['shipping-area'];
 		//console.log("gales: "+JSON.stringify(gales, undefined, 2));
+		// see if our area is in the list of gales!
 		for ( var g = 0; g < gales.length; g++ ) {
 		  if ( gales[g].toLowerCase() == area.toLowerCase() ) {
+		    // Ops it is!!! Add it to the reply
 		    alexaReply = "Gale warning!  ";
 			console.log("makeForecastRequest: Gale warning for: "+area);
 		  }
@@ -328,17 +340,26 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		for (var i = 0; i < areaForecasts.length; i++) {
 		    // as the met office gives condensed forecasts
 		    // you need to parse for two sorts of responses
-                    // firstly the singular response
+            // firstly the singular response
 		    if ( areaForecasts[i].area.length == undefined ) {
-		        if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
-			   // match!!!!!
-			   alexaReply = alexaReply + areaForecasts[i].area.main
-			     + '.  Issued at ' + issueTime
-			     + areaForecasts[i].wind + '  '
-			     + areaForecasts[i].seastate + '  '
-			     + areaForecasts[i].weather + '  '
-			     + areaForecasts[i].visibility;
-			}
+		      if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
+			    var newIssue = areaForecasts[i].area.$.issuetime;
+				if ( newIssue != undefined ) {
+				  regResults = newIssue.match(re);
+				  issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
+				  var d = new Date(areaForecasts[i].area.$.issuedate);
+				  issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+				  issued = issueTime + issuedDate;
+				  //console.log("issued: " + issued); 
+				}
+			    // match!!!!!
+			    alexaReply = alexaReply + areaForecasts[i].area.main
+			      + '.  Issued at ' + issued
+			      + areaForecasts[i].wind + '  '
+			      + areaForecasts[i].seastate + '  '
+			      + areaForecasts[i].weather + '  '
+			      + areaForecasts[i].visibility;
+			  }
 		    } else {
 		        // okay - so it is multidemensional response
 			// so we need to split it
@@ -347,23 +368,23 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			for (var k = 0; k < main.length; k++) {
 			    // Look for match
 			    if ( main[k].toLowerCase() == area.toLowerCase() ) {
-			        // match!!!!
-				alexaReply = alexaReply + main[k]
-				  + '.  Issued at ' + issueTime
-				  + areaForecasts[i].area[k].wind + '   '
-				  + areaForecasts[i].area[k].seastate + '   '
-				  + areaForecasts[i].area[k].weather + '  '
-				  + areaForecasts[i].area[k].visibility;
-                            }
-			}
+			      // match!!!!
+				  alexaReply = alexaReply + main[k]
+				    + '.  Issued at ' + issued
+				    + areaForecasts[i].area[k].wind + '   '
+				    + areaForecasts[i].area[k].seastate + '   '
+				    + areaForecasts[i].area[k].weather + '  '
+				    + areaForecasts[i].area[k].visibility;
+                }
+			  }
 		    }
 		}
-                console.log('makeForecastRequest: forecast found is: '+alexaReply);
-            });
+        console.log('makeForecastRequest: forecast found is: '+alexaReply);
+      });
 
-	    // we should have a reponse to send
-            forecastResponseCallback(null, alexaReply);
-        });
+	  // we should have a reponse to send
+      forecastResponseCallback(null, alexaReply);
+      });
     }).on('error', function (e) {
         console.log("Communications error: " + e.message);
         forecastResponseCallback(new Error(e.message));
