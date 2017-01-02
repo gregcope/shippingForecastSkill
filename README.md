@@ -11,6 +11,7 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 
 ##Features
 * Will give gale Warning if area has a warning
+* Adds the correct date suffix (st,nd,th etc...)
 * Gives correct issue time and date, even for areas that sometimes have thier own seperate ones (e.g. Trafalgar)
 
 ##TODO

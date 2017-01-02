@@ -167,7 +167,7 @@ function callback_function(str) {
 	var date = d.getDate();
 	console.log('Date is: '+date);
 
-	issuedDate = dateWithSuffix(date)+"  "+monthNames[d.getMonth()]+".  ";
+	issuedDate = dateWithSuffix(date)+" "+monthNames[d.getMonth()]+".  ";
 	console.log('IssueDate: '+issuedDate);
     issued = issueTime + issuedDate;
 
@@ -216,7 +216,7 @@ function callback_function(str) {
 			//console.log("Date is: "+ d.getDate());
 			var date = d.getDate();
 
-			issuedDate = dateWithSuffix(date) + "  "+monthNames[d.getMonth()]+".  ";
+			issuedDate = dateWithSuffix(date) + " "+monthNames[d.getMonth()]+".  ";
 			issued = issueTime + issuedDate;
 			console.log("Overloadding Issued: " + issued);
 		  }
