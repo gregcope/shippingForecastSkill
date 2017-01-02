@@ -34,15 +34,25 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
 
 ##Build
-1. Clone repo
+1. Clone repo; Install above dependencies
 2. cd src
 3. hack stuff
-4. zip f.zip *
-5. upload to zip to AWS lambda, configure Alexa Skill etc...
-6. profit
+4. Either zip -x build.sh -r manual.zip *
+5. then upload to zip to AWS lambda, configure Alexa Skill etc...
+6. Or run build.sh (see buildScript section)
+7. profit
 
 ##Command line
 node shippingSkillXML.js "Southeast Iceland"
+
+##Note on Lambda run times
+I see various differences in run times.  On the command line, getting the XML forcast takes around 60ms for first (DNS query) and 30ms for subsequent request;
+```for i in {1..3};do curl -s -w "%{time_total}\n"  --trace-time -o /dev/null www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest --trace-time; done
+0.070
+0.032
+0.032
+```
+
 
 ##Licence
 GNU GPL v3
