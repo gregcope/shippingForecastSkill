@@ -45,6 +45,7 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 ##AWS CLI code upload user (for Build script)
 * Create a AWS IAM user (shippingForecastLambdaCodeUploader) - no password/groups
 * Create a policy that only allows the following Actions to the specific ARN path
+* Change the ARN PATH!!!!!!!
 ```{
     "Version": "2012-10-17",
     "Statement": [
@@ -52,7 +53,6 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
             "Sid": "Stmt1483377890000",
             "Effect": "Allow",
             "Action": [
-                "lambda:GetFunction",
                 "lambda:UpdateFunctionCode"
             ],
             "Resource": [
