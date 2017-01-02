@@ -11,6 +11,8 @@
 
 echo "$0 Starting build ..."
 
-zip -x $0 -r f.zip *
+zip -x $0 manual.zip -r build.zip *
+
+aws lambda update-function-code --function-name shippingForecast --zip-file fileb://build.zip
 
 echo "$0 Done."

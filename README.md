@@ -52,7 +52,7 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
             "Sid": "Stmt1483377890000",
             "Effect": "Allow",
             "Action": [
-                "lambda:GetFunctionConfiguration",
+                "lambda:GetFunction",
                 "lambda:UpdateFunctionCode"
             ],
             "Resource": [
