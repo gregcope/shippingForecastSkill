@@ -42,6 +42,28 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 6. Or run build.sh (see buildScript section)
 7. profit
 
+##AWS CLI code upload user (for Build script)
+* Create a AWS IAM user (shippingForecastLambdaCodeUploader) - no password/groups
+* Create a policy that only allows the following Actions to the specific ARN path
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Stmt1483377890000",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:GetFunctionConfiguration",
+                "lambda:UpdateFunctionCode"
+            ],
+            "Resource": [
+                "arn:aws:lambda:eu-west-1:517900834313:function:shippingForecast"
+            ]
+        }
+    ]
+}```
+* Copy / create the access keys and configure this for AWS CLI usage
+
 ##Command line
 node shippingSkillXML.js "Southeast Iceland"
 
