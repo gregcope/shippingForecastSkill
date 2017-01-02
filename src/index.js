@@ -11,10 +11,11 @@ var xml2js = require ('xml2js');
 //var parser = new xml2js.Parser();
 var parser = new xml2js.Parser({explicitArray : false});
 
-// some timer variables for re-use
-startMillis = 0;
-endMillis = 0;
-elapsedMillis = 0;
+// some timer variables
+// http
+var httpStartMillis = 0;
+var httpEndMillis = 0;
+var httpElapsedMillis = 0;
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -60,6 +61,7 @@ ShippingForecast.prototype.eventHandlers.onSessionEnded = function (sessionEnded
 ShippingForecast.prototype.intentHandlers = {
     "OneshotForecastIntent": function (intent, session, response) {
         handleOneshotForecastRequest(intent, session, response);
+		console.timeEnd('Skill-elapsed');
     },
 
     "DialogForecastIntent": function (intent, session, response) {
@@ -71,24 +73,29 @@ ShippingForecast.prototype.intentHandlers = {
         } else {
             handleNoSlotDialogRequest(intent, session, response);
         }
+		console.timeEnd('Skill-elapsed');
     },
 
     "SupportedAreasIntent": function (intent, session, response) {
         handleSupportedAreasRequest(intent, session, response);
+		console.timeEnd('Skill-elapsed');
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
         handleHelpRequest(response);
+		console.timeEnd('Skill-elapsed');
     },
 
     "AMAZON.StopIntent": function (intent, session, response) {
         var speechOutput = "Goodbye";
         response.tell(speechOutput);
+		console.timeEnd('Skill-elapsed');
     },
 
     "AMAZON.CancelIntent": function (intent, session, response) {
         var speechOutput = "Goodbye";
         response.tell(speechOutput);
+		console.timeEnd('Skill-elapsed');
     }
 };
 
@@ -150,6 +157,7 @@ function handleWelcomeRequest(response) {
         };
 
     response.ask(speechOutput, repromptOutput);
+	console.timeEnd('Skill-elapsed');
 }
 
 function handleHelpRequest(response) {
@@ -163,6 +171,7 @@ function handleHelpRequest(response) {
         + repromptText;
 
     response.ask(speechOutput, repromptText);
+	console.timeEnd('Skill-elapsed');
 }
 
 /**
@@ -175,6 +184,7 @@ function handleSupportedAreaequest(intent, session, response) {
         + repromptText;
 
     response.ask(speechOutput, repromptText);
+    console.timeEnd('Skill-elapsed');
 }
 
 /**
@@ -261,8 +271,9 @@ function getFinalForecastResponse(area, response) {
             //speechOutput = date.displayDate + " in " + cityStation.city + ", the first high forecast will be around "
             //    + ", and will peak at about " + highForecastResponse.secondHighForecastHeight + ".";
         }
-
         response.tellWithCard(speechOutput, "ShippingForecast", speechOutput)
+
+		console.timeEnd('Skill-elapsed');
     });
 }
 
@@ -277,15 +288,15 @@ function makeForecastRequest(area, forecastResponseCallback) {
     var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
     var alexaReply = '';
 
-    startMillis = new Date().getTime();
+    httpStartMillis = new Date().getTime();
     http.get(metURI, function (res) {
         var metResponseString = '';
         console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
 
         if (res.statusCode != 200) {
-		    endMillis = new Date().getTime();
-			elapsedMillis = endMillis - startMillis;
-            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI+" ,in:"+elapsedMillis+"ms."));
+		    httpEndMillis = new Date().getTime();
+			httpElapsedMillis = httpEndMillis - httpStartMillis;
+            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI+" ,in:"+httpElapsedMillis+"ms."));
         }
 
         res.on('data', function (data) {
@@ -294,8 +305,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
         res.on('end', function () {
             // so we have a response to parse.
-			endMillis = new Date().getTime();
-			elapsedMillis = endMillis - startMillis;
+			httpEndMillis = new Date().getTime();
+			httpElapsedMillis = httpEndMillis - httpStartMillis;
             if ( area.toLowerCase() == "white" ) {
               console.log("makeForecastRequest: area is white, changing to Wight");
               area = "Wight";
@@ -303,7 +314,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
         // uncomment for XML debug
 	    //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
-        console.log("makeForecastRequest: Have HTTP response, with date in: "+elapsedMillis+"ms.");
+        console.log("makeForecastRequest: Have HTTP response, with date in: "+httpElapsedMillis+"ms.");
+		console.timeEnd('Skill-elapsed');
 
         var areaForecasts = [];
 	    var areas = {};
@@ -314,7 +326,11 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		  "July", "August", "September", "October", "November", "December" ];
 
 	    // parse XML into parser
+		console.log("makeForecastRequest: parser.parseString starting");
+		console.timeEnd('Skill-elapsed');
 	    parser.parseString(metResponseString, function(err, results) {
+		console.log("makeForecastRequest: parser.parseString done.");
+		console.timeEnd('Skill-elapsed');
 	    // get the issue time
 		var issue = results['report']['issue'];
         // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
@@ -330,7 +346,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		// turn Month number back into Month name with suffix
 		var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
 		// string it all together now...
-        issuee = issueTime + issuedDate;
+        issued = issueTime + issuedDate;
 		//console.log('makeForecastRequest: Issued: ' + issued);
 
 		// get Gale warnings
@@ -348,12 +364,18 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		// get areas
 	    areaForecasts = results['report']['area-forecasts']['area-forecast'];
 		// iterate over the parsed response, looking for the area
+        console.log("makeForecastRequest: gale check done, about to loop looking for forecast");
+		console.timeEnd('Skill-elapsed');
+
 		for (var i = 0; i < areaForecasts.length; i++) {
 		    // as the met office gives condensed forecasts
 		    // you need to parse for two sorts of responses
             // firstly the singular response
 		    if ( areaForecasts[i].area.length == undefined ) {
+			  console.log("makeForecastRequest: Found singlar forecast");
+			  console.timeEnd('Skill-elapsed');
 		      if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
+			    console.log("makeForecastRequest: Found singlar forecast");
 			    var newIssue = areaForecasts[i].area.$.issuetime;
 				if ( newIssue != undefined ) {
 				  // new issued time/date to overload
@@ -376,12 +398,15 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		    } else {
 		        // okay - so it is multidemensional response
 			// so we need to split it
-		        var main = [];
+		    var main = [];
 			main = areaForecasts[i].all.split(', ');
+			console.log("makeForecastRequest: looking at multidemensional forecast");
+			console.timeEnd('Skill-elapsed');
 			for (var k = 0; k < main.length; k++) {
 			    // Look for match
 			    if ( main[k].toLowerCase() == area.toLowerCase() ) {
 			      // match!!!!
+				  console.log("makeForecastRequest: match");
 				  alexaReply = alexaReply + main[k]
 				    + '.  Issued at ' + issued
 				    + areaForecasts[i].area[k].wind + '   '
@@ -393,6 +418,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		    }
 		}
         console.log('makeForecastRequest: forecast found is: '+alexaReply);
+		console.timeEnd('Skill-elapsed');
       });
 
 	  // we should have a reponse to send
@@ -462,6 +488,10 @@ function getAllAreasText() {
 // Create the handler that responds to the Alexa Request.
 exports.handler = function (event, context) {
     var shippingForecast = new ShippingForecast();
+
+    // grab a some time data
+	console.time('Skill-elapsed');
+	// do the thing
     shippingForecast.execute(event, context);
 };
 
