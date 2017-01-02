@@ -27,8 +27,8 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Internet access to get to Met Office forecast!!!
 * Met Office Forecast to be avaliable, responseive and corrrect!!!!
 * xml2js node libary
-* cd shippingForecastSkill/src/
-* npm install --prefix=~/shippingForecastSkill/src xml2js
+* ```cd shippingForecastSkill/src/```
+* ```npm install --prefix=~/shippingForecastSkill/src xml2js```
 
 ##How
 * Copy / hack of; https://github.com/amzn/alexa-skills-kit-js/tree/master/samples/tidePooler
@@ -46,13 +46,62 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 node shippingSkillXML.js "Southeast Iceland"
 
 ##Note on Lambda run times
-I see various differences in run times.  On the command line, getting the XML forcast takes around 60ms for first (DNS query) and 30ms for subsequent request;
+I see various differences in run times.  
+
+###Curl
+On the command line, getting the XML forcast takes around 60ms for first (DNS query) and 30ms for subsequent request, this curl shows DNS and total time for five rounds.  In Southern England;
 ```
-for i in {1..3};do curl -s -w "%{time_total}\n" -o /dev/null www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest; done
-0.070
-0.032
-0.032
+$ for i in {1..5};do curl -s -w "%{time_namelookup}, %{time_total}\n" -o /dev/null www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest; done
+0.033, 0.059
+0.005, 0.035
+0.005, 0.037
+0.005, 0.032
+0.005, 0.031
 ```
+
+###The met office uses Akamai;
+```
+$ dig www.metoffice.gov.uk  +noall +answer
+
+; <<>> DiG 9.8.3-P1 <<>> www.metoffice.gov.uk +noall +answer
+;; global options: +cmd
+www.metoffice.gov.uk.	436	IN	CNAME	www.metoffice.gov.uk.edgesuite.net.
+www.metoffice.gov.uk.edgesuite.net. 12618 IN CNAME a376.r.akamai.net.
+a376.r.akamai.net.	9	IN	A	23.62.2.27
+a376.r.akamai.net.	9	IN	A	23.62.3.102
+```
+
+###Lamdba run times
+However Lambda run times vary allot; Which looks like a combination of startup time and DNS.  Here are a few in short succession;
+
+####Long
+
+```
+2017-01-02T13:01:54.558Z	a25c0409-d0eb-11e6-b735-c167da284f2c	makeForecastRequest: Have HTTP response, with date in: 183ms.
+REPORT RequestId: a25c0409-d0eb-11e6-b735-c167da284f2c	Duration: 816.65 ms	Billed Duration: 900 ms Memory Size: 128 MB	Max Memory Used: 30 MB	
+```
+
+####Another long
+
+```
+2017-01-02T13:01:11.911Z	88debf9b-d0eb-11e6-b09d-57f7961e841d	makeForecastRequest: Have HTTP response, with date in: 256ms.
+REPORT RequestId: 88debf9b-d0eb-11e6-b09d-57f7961e841d	Duration: 770.25 ms	Billed Duration: 800 ms Memory Size: 128 MB	Max Memory Used: 25 MB	
+```
+
+####Short
+
+```
+2017-01-02T13:02:00.140Z	a5ecf354-d0eb-11e6-8eb5-95cabf63dc8a	makeForecastRequest: Have HTTP response, with date in: 20ms.
+REPORT RequestId: a5ecf354-d0eb-11e6-8eb5-95cabf63dc8a	Duration: 73.97 ms	Billed Duration: 100 ms Memory Size: 128 MB	Max Memory Used: 30 MB	
+```
+
+####Another short
+
+```
+2017-01-02T13:02:26.042Z	b55cd249-d0eb-11e6-9c76-2fcbfbe789b7	makeForecastRequest: Have HTTP response, with date in: 28ms.
+REPORT RequestId: b55cd249-d0eb-11e6-9c76-2fcbfbe789b7	Duration: 120.61 ms	Billed Duration: 200 ms Memory Size: 128 MB	Max Memory Used: 30 MB	
+```
+
 
 
 ##Licence
