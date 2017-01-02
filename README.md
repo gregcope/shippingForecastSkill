@@ -47,7 +47,8 @@ node shippingSkillXML.js "Southeast Iceland"
 
 ##Note on Lambda run times
 I see various differences in run times.  On the command line, getting the XML forcast takes around 60ms for first (DNS query) and 30ms for subsequent request;
-```for i in {1..3};do curl -s -w "%{time_total}\n"  --trace-time -o /dev/null www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest --trace-time; done
+```
+for i in {1..3};do curl -s -w "%{time_total}\n" -o /dev/null www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest; done
 0.070
 0.032
 0.032
