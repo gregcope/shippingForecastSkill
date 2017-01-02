@@ -66,10 +66,10 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Copy / create the access keys and configure this for AWS CLI usage
 
 ##Command line
-node shippingSkillXML.js "Southeast Iceland"
+```node shippingSkillXML.js "Southeast Iceland"```
 
 ##Note on Lambda run times
-I see various differences in run times.  
+I see various differences in run times......
 
 ###Curl
 On the command line, getting the XML forcast takes around 60ms for first (DNS query) and 30ms for subsequent request, this curl shows DNS and total time for five rounds.  In Southern England;
