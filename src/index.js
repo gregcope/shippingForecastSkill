@@ -277,8 +277,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
     var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
     var alexaReply = '';
 
+    startMillis = new Date().getTime();
     http.get(metURI, function (res) {
-	    startMillis = new Date().getTime();
         var metResponseString = '';
         console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
 
@@ -330,8 +330,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		// turn Month number back into Month name with suffix
 		var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
 		// string it all together now...
-        issued = issueTime + issuedDate;
-		console.log('makeForecastRequest: Issued: ' + issued);
+        issuee = issueTime + issuedDate;
+		//console.log('makeForecastRequest: Issued: ' + issued);
 
 		// get Gale warnings
 		gales = results['report']['gales']['shipping-area'];
