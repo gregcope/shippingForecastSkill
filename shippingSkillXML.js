@@ -111,6 +111,9 @@ var options = {
   path: metPath
 };
 
+var startMillis = 0;
+var endMillis = 0;
+
 // do the HTTP reqest
 callback = function(response) {
   console.log('Getting: %s%s', metHost,metPath);
@@ -122,7 +125,11 @@ callback = function(response) {
 
   // The whole HTTP response has been recieved, so regex it and reply
   response.on('end', function () {
-    console.log('got response');
+    endMillis = new Date().getTime();
+	console.log('startMillis: '+startMillis);
+	console.log('endMillis: '+endMillis);
+	var elapsedMillis = endMillis - startMillis;
+    console.log('got response in: '+elapsedMillis+'ms');
     callback_function(str);
   });
 }
@@ -152,10 +159,16 @@ function callback_function(str) {
     var regResults = issue.$.time.match(re);
     // split up times line 1030 as alexa tries to prounce these as one thousand and thiry
     // not ten thirty - hence the split
-    var issueTime = regResults[1] + " " + regResults[2] + " UTC. ";
+    var issueTime = regResults[1] + " " + regResults[2] + " U T C. ";
 
 	var d = new Date(issue.$.date);
-	issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+
+	// add the correct date suffix
+	var date = d.getDate();
+	console.log('Date is: '+date);
+
+	issuedDate = dateWithSuffix(date)+"  "+monthNames[d.getMonth()]+".  ";
+	console.log('IssueDate: '+issuedDate);
     issued = issueTime + issuedDate;
 
     console.log('Issued: ' + issued);
@@ -201,10 +214,11 @@ function callback_function(str) {
 
 			//console.log("Month is: " + monthNames[d.getMonth()]);
 			//console.log("Date is: "+ d.getDate());
+			var date = d.getDate();
 
-			issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+			issuedDate = dateWithSuffix(date) + "  "+monthNames[d.getMonth()]+".  ";
 			issued = issueTime + issuedDate;
-			//console.log("issued: " + issued);
+			console.log("Overloadding Issued: " + issued);
 		  }
 
           alexaResponse = alexaResponse + areaForecasts[i].area.main 
@@ -240,4 +254,22 @@ function callback_function(str) {
   });
 }
 
+// Function to return date with suffix
+// shameless stolen from; http://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number
+function dateWithSuffix(i) {
+  var j = i % 10,
+  k = i % 100;
+  if (j == 1 && k != 11) {
+    return i + "st";
+  }
+  if (j == 2 && k != 12) {
+    return i + "nd";
+  }
+  if (j == 3 && k != 13) {
+    return i + "rd";
+  }
+  return i + "th";
+}
+
+startMillis = new Date().getTime();
 http.request(options, callback).end();

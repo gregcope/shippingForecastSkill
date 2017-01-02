@@ -452,3 +452,21 @@ exports.handler = function (event, context) {
     shippingForecast.execute(event, context);
 };
 
+//
+// Function to return date with suffix
+// shameless stolen from; http://stackoverflow.com/questions/13627308/add-st-nd-rd-and-th-ordinal-suffix-to-a-number
+//
+function dateWithSuffix(i) {
+  var j = i % 10,
+  k = i % 100;
+  if (j == 1 && k != 11) {
+    return i + "st";
+  }
+  if (j == 2 && k != 12) {
+    return i + "nd";
+  }
+  if (j == 3 && k != 13) {
+    return i + "rd";
+  }
+  return i + "th";
+}
