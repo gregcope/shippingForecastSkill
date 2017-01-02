@@ -102,7 +102,10 @@ REPORT RequestId: a5ecf354-d0eb-11e6-8eb5-95cabf63dc8a	Duration: 73.97 ms	Billed
 REPORT RequestId: b55cd249-d0eb-11e6-9c76-2fcbfbe789b7	Duration: 120.61 ms	Billed Duration: 200 ms Memory Size: 128 MB	Max Memory Used: 30 MB	
 ```
 
-
+##Scratch notes
+* Install AWS CLI on MacOSX 10.12 Sierra;
+** brew install awscli
+** from https://www.cyberciti.biz/faq/osx-installing-the-aws-command-line-interface-using-brew/
 
 ##Licence
 GNU GPL v3
