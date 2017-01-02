@@ -135,3 +135,15 @@ GNU GPL v3
 
 ##Note about the Met office JS file
 This file: http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js is constantly giving forecasts for 1030 UTC, October 28.  Not helpfull.  The code on here: https://en.wikibooks.org/wiki/XQuery/UK_shipping_forecast WILL NOT WORK due to the met office.  They seem unable to fix it...
+* https://twitter.com/greg_cope/status/810856808092934145
+* https://twitter.com/greg_cope/status/811643485732409344
+* 10 days later and it still does not work ...
+* ```
+$ curl http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js  | grep Oct | head -3
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                   Dload  Upload   Total   Spent    Left  Speed
+								   100 15626  100 15626    0     0   484k      0 --:--:-- --:--:-- --:--:--  492k
+								   galeIssueTime[9] = "2139 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Mon 27 Oct";
+								   shipIssueTime[9] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
+								   shipIssueTime[28] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
+```
