@@ -11,6 +11,11 @@ var xml2js = require ('xml2js');
 //var parser = new xml2js.Parser();
 var parser = new xml2js.Parser({explicitArray : false});
 
+// some timer variables for re-use
+startMillis = 0;
+endMillis = 0;
+elapsedMillis = 0;
+
 /**
  * The AlexaSkill prototype and helper functions
  */
@@ -273,11 +278,14 @@ function makeForecastRequest(area, forecastResponseCallback) {
     var alexaReply = '';
 
     http.get(metURI, function (res) {
+	    startMillis = new Date().getTime();
         var metResponseString = '';
         console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
 
         if (res.statusCode != 200) {
-            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI));
+		    endMillis = new Date().getTime();
+			elapsedMillis = endMillis - startMillis;
+            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI+" ,in:"+elapsedMillis+"ms."));
         }
 
         res.on('data', function (data) {
@@ -286,13 +294,14 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
         res.on('end', function () {
             // so we have a response to parse.
-
+			endMillis = new Date().getTime();
+			elapsedMillis = endMillis - startMillis;
             if ( area.toLowerCase() == "white" ) {
               console.log("makeForecastRequest: area is white, changing to Wight");
               area = "Wight";
             }
 
-	    console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area);
+	    console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
 
         var areaForecasts = [];
 	    var areas = {};
