@@ -301,7 +301,9 @@ function makeForecastRequest(area, forecastResponseCallback) {
               area = "Wight";
             }
 
-	    console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
+        // uncomment for XML debug
+	    //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
+        console.log("makeForecastRequest: Have HTTP response, with date in: "+elapsedMillis+"ms.");
 
         var areaForecasts = [];
 	    var areas = {};
