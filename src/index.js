@@ -325,8 +325,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
         // get the date
         var d = new Date(issue.$.date);
-		// turn Month number back into Month name
-		var issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+		// turn Month number back into Month name with suffix
+		var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
 		// string it all together now...
         issued = issueTime + issuedDate;
 		console.log('makeForecastRequest: Issued: ' + issued);
@@ -354,10 +354,12 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		      if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
 			    var newIssue = areaForecasts[i].area.$.issuetime;
 				if ( newIssue != undefined ) {
+				  // new issued time/date to overload
 				  regResults = newIssue.match(re);
 				  issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
 				  var d = new Date(areaForecasts[i].area.$.issuedate);
-				  issuedDate = d.getDate() + "  "+monthNames[d.getMonth()]+".  ";
+				  // turn month into Name plus suffix and overload issuedDate
+				  issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
 				  issued = issueTime + issuedDate;
 				  //console.log("issued: " + issued); 
 				}
