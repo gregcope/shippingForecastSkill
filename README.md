@@ -43,9 +43,10 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 7. profit
 
 ##AWS CLI code upload user (for Build script)
+* This assumes the function has already been created and working ...
 * Create a AWS IAM user (shippingForecastLambdaCodeUploader) - no password/groups
 * Create a policy that only allows the following Actions to the specific ARN path
-* Change the ARN PATH!!!!!!!
+* Change the ARN PATH to that of your Lambda function !!!!!!!
 ```
 {
     "Version": "2012-10-17",
@@ -141,10 +142,10 @@ This file: http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_tab
 * 02-Jan-2017
 ```
 $ curl http://www.metoffice.gov.uk/lib/includes/marine/gale_and_shipping_table.js  | grep Oct | head -3
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                   Dload  Upload   Total   Spent    Left  Speed
-								   100 15626  100 15626    0     0   484k      0 --:--:-- --:--:-- --:--:--  492k
-								   galeIssueTime[9] = "2139 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Mon 27 Oct";
-								   shipIssueTime[9] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
-								   shipIssueTime[28] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                Dload  Upload   Total   Spent    Left  Speed
+100 15626  100 15626    0     0   484k      0 --:--:-- --:--:-- --:--:--  492k
+galeIssueTime[9] = "2139 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Mon 27 Oct";
+shipIssueTime[9] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
+shipIssueTime[28] = "1030 <acronym title='Coordinated Universal Time (UTC)'> UTC</acronym> Tue 28 Oct";
 ```
