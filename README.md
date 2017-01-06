@@ -7,7 +7,7 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Takes one area as an argument (e.g. Dover)
 * Downloads www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
 * Parses XML looking for area
-* Returns Forecast
+* Returns Forecast, hopefully
 
 ##Features
 * Will give gale Warning if area has a warning
