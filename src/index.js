@@ -318,6 +318,12 @@ function parseXML(area, foarecastResponseCallback) {
  */
 function makeForecastRequest(area, forecastResponseCallback) {
 
+    if ( checkCache() ) {
+	    // use the cached one
+	} else {
+	  // need to make an HTTP Request
+	}
+
     console.log("makeForecastRequest: looking for area: "+area);
     var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
     var alexaReply = '';
