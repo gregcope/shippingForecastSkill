@@ -275,29 +275,52 @@ function getFinalForecastResponse(area, response) {
 }
 
 /**
+ * Check the xmlString is not empty and it's last fetch time
+ * return true if use cache, else return false
+ */
+
+function useCache() {
+    if ( xmlString != '' ) {
+        console.log("useCache: xmlString not empty, checking xmlString time");
+        var millisecsSinceEpoc = new Date().getTime();
+        var millisecsSinceLastFetch = millisecsSinceEpoc - xmlStringMillisecsSinceEpoc;
+        // 1000 * 5 * 60 = 300000 (number millisecs in 5 mins)
+        if ( millisecsSinceLastFetch < 300000 ) {
+            console.log("useCache: millisecsSinceLastFetch only: "+millisecsSinceLastFetch+"ms - less than 5 mins old lets use that!");
+            // so lets use this one
+            return true;
+        } else {
+            console.log("useCache: millisecsSinceLastFetchs tale: "+millisecsSinceLastFetch+"ms , do not use cached version");
+            // bit old/manky, need to go fetch a new one
+            return false;
+        }
+    } else {
+        console.log("useCache: xmlString empty");
+        // need to go get fetch a puppy!!!
+        return false;
+    }
+}
+
+/**
+ * parsexmlString for forecast
+ */
+
+function parseXML(area, foarecastResponseCallback) {
+
+
+}
+
+
+
+/**
  * Fetch the Met Office XML file
  * http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
  */
-
 function makeForecastRequest(area, forecastResponseCallback) {
 
     console.log("makeForecastRequest: looking for area: "+area);
     var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
     var alexaReply = '';
-
-    if ( xmlString != '' ) {
-	    console.log("makeForecastRequest: xmlString not empty, checking xmlString time");
-		var millisecsSinceEpoc = new Date().getTime();
-		var millisecsSinceLastFetch = millisecsSinceEpoc - xmlStringMillisecsSinceEpoc;
-		// 1000 * 5 * 60 = 300000 (number millisecs in 5 mins)
-		if ( millisecsSinceLastFetch < 300000 ) {
-		    console.log("makeForecastRequest: xmlString only: "+millisecsSinceLastFetch+"ms - less than 5 mins old lets use that!");
-		} else {
-		    console.log("makeForecastRequest: xmlString stale, try getting a new one");
-		}
-	} else {
-	    console.log("makeForecastRequest: xmlString empty");
-	}
 
     console.time('http-request');
     
