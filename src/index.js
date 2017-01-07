@@ -280,7 +280,11 @@ function getFinalForecastResponse(area, response) {
  */
 
 function useCache() {
+
+    // check string not empty (it will be on first run)
     if ( xmlString != '' ) {
+
+	    // if not empty, check its millisecsSinceLastFetch
         console.log("useCache: xmlString not empty, checking xmlString time");
         var millisecsSinceEpoc = new Date().getTime();
         var millisecsSinceLastFetch = millisecsSinceEpoc - xmlStringMillisecsSinceEpoc;
