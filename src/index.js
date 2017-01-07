@@ -315,14 +315,13 @@ function parseXML(area, foarecastResponseCallback) {
 }
 
 
-
 /**
  * Fetch the Met Office XML file
  * http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
  */
 function makeForecastRequest(area, forecastResponseCallback) {
 
-    if ( checkCache() ) {
+    if ( useCache() ) {
 	    // use the cached one
 	} else {
 	  // need to make an HTTP Request
