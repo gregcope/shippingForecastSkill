@@ -8,14 +8,11 @@ var APP_ID = 'amzn1.ask.skill.78c18798-6711-4f41-80bb-6efc669ce296';
 
 var http = require('http');
 var xml2js = require ('xml2js');
-//var parser = new xml2js.Parser();
 var parser = new xml2js.Parser({explicitArray : false});
 
-// some timer variables
-// http
-var httpStartMillis = 0;
-var httpEndMillis = 0;
-var httpElapsedMillis = 0;
+// cache global vars, one to hold the content, the other to hold the time
+var xmlString = '';
+var xmlStringDate = '';
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -289,14 +286,16 @@ function makeForecastRequest(area, forecastResponseCallback) {
     var alexaReply = '';
 
     httpStartMillis = new Date().getTime();
+    console.time('http-request');
+    
     http.get(metURI, function (res) {
         var metResponseString = '';
         console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
+        console.timeEnd('http-request');
 
         if (res.statusCode != 200) {
-		    httpEndMillis = new Date().getTime();
-			httpElapsedMillis = httpEndMillis - httpStartMillis;
-            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI+" ,in:"+httpElapsedMillis+"ms."));
+            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI));
+            console.timeEnd('http-request');
         }
 
         res.on('data', function (data) {
@@ -305,8 +304,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
         res.on('end', function () {
             // so we have a response to parse.
-			httpEndMillis = new Date().getTime();
-			httpElapsedMillis = httpEndMillis - httpStartMillis;
+            console.timeEnd('http-request');
             if ( area.toLowerCase() == "white" ) {
               console.log("makeForecastRequest: area is white, changing to Wight");
               area = "Wight";
@@ -314,62 +312,62 @@ function makeForecastRequest(area, forecastResponseCallback) {
 
         // uncomment for XML debug
 	    //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
-        console.log("makeForecastRequest: Have HTTP response, with date in: "+httpElapsedMillis+"ms.");
-		console.timeEnd('Skill-elapsed');
+        console.log("makeForecastRequest: Have HTTP response, with data");
+        console.timeEnd('Skill-elapsed');
 
         var areaForecasts = [];
-	    var areas = {};
-	    var forecast = '';
-		var gales = [];
-		var issued = '';
-		var monthNames = ["January", "February", "March", "April", "May", "June",
-		  "July", "August", "September", "October", "November", "December" ];
+	var areas = {};
+	var forecast = '';
+        var gales = [];
+        var issued = '';
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December" ];
 
-	    // parse XML into parser
-		console.log("makeForecastRequest: parser.parseString starting");
-		console.timeEnd('Skill-elapsed');
-	    parser.parseString(metResponseString, function(err, results) {
-		console.log("makeForecastRequest: parser.parseString done.");
-		console.timeEnd('Skill-elapsed');
-	    // get the issue time
-		var issue = results['report']['issue'];
+	// parse XML into parser
+	console.log("makeForecastRequest: parser.parseString starting");
+	console.timeEnd('Skill-elapsed');
+	parser.parseString(metResponseString, function(err, results) {
+	console.log("makeForecastRequest: parser.parseString done.");
+	console.timeEnd('Skill-elapsed');
+	// get the issue time
+	var issue = results['report']['issue'];
         // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
         // with split should be the more correct "ten thirty UTC"
         // or 09 00 UTC
         // but 12 00 UTC might sound odd
-		var re = new RegExp('(\\d{2})(\\d{2})');
-		var regResults = issue.$.time.match(re);
+	var re = new RegExp('(\\d{2})(\\d{2})');
+	var regResults = issue.$.time.match(re);
         var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
 
         // get the date
         var d = new Date(issue.$.date);
-		// turn Month number back into Month name with suffix
-		var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
-		// string it all together now...
+	// turn Month number back into Month name with suffix
+	var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
+	// string it all together now...
         issued = issueTime + issuedDate;
-		//console.log('makeForecastRequest: Issued: ' + issued);
+	//console.log('makeForecastRequest: Issued: ' + issued);
 
-		// get Gale warnings
-		gales = results['report']['gales']['shipping-area'];
-		//console.log("gales: "+JSON.stringify(gales, undefined, 2));
-		// see if our area is in the list of gales!
-		for ( var g = 0; g < gales.length; g++ ) {
-		  if ( gales[g].toLowerCase() == area.toLowerCase() ) {
-		    // Ops it is!!! Add it to the reply
-		    alexaReply = "Gale warning!  ";
-			console.log("makeForecastRequest: Gale warning for: "+area);
-		  }
-		}
+	// get Gale warnings
+	gales = results['report']['gales']['shipping-area'];
+	//console.log("gales: "+JSON.stringify(gales, undefined, 2));
+	// see if our area is in the list of gales!
+	for ( var g = 0; g < gales.length; g++ ) {
+	    if ( gales[g].toLowerCase() == area.toLowerCase() ) {
+                // Ops it is!!! Add it to the reply
+		alexaReply = "Gale warning!  ";
+		console.log("makeForecastRequest: Gale warning for: "+area);
+	    }
+        }
 
-		// get areas
-	    areaForecasts = results['report']['area-forecasts']['area-forecast'];
-		// iterate over the parsed response, looking for the area
+	// get areas
+        areaForecasts = results['report']['area-forecasts']['area-forecast'];
+	// iterate over the parsed response, looking for the area
         console.log("makeForecastRequest: gale check done, about to loop looking for forecast");
-		console.timeEnd('Skill-elapsed');
+	console.timeEnd('Skill-elapsed');
 
-		for (var i = 0; i < areaForecasts.length; i++) {
-		    // as the met office gives condensed forecasts
-		    // you need to parse for two sorts of responses
+	for (var i = 0; i < areaForecasts.length; i++) {
+            // as the met office gives condensed forecasts
+            // you need to parse for two sorts of responses
             // firstly the singular response
 		    if ( areaForecasts[i].area.length == undefined ) {
 			  console.log("makeForecastRequest: Found singlar forecast");
@@ -431,7 +429,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 }
 
 /**
- * Gets the city from the intent, or returns an error
+ * Gets the area from the intent, or returns an error
  */
 function getAreaFromIntent(intent, assignDefault) {
 
