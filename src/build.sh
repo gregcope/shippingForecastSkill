@@ -11,6 +11,9 @@
 
 echo "$0 Starting build ..."
 
+# commit this build
+git commit -am "build be run: `date +%s`"
+
 zip -x $0 manual.zip -r build.zip *
 
 aws lambda update-function-code --function-name shippingForecast --zip-file fileb://build.zip
