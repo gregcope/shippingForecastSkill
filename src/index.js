@@ -12,7 +12,7 @@ var parser = new xml2js.Parser({explicitArray : false});
 
 // cache global vars, one to hold the content, the other to hold the time
 var xmlString = '';
-var xmlStringDate = '';
+var xmlStringMillisecsSinceEpoc = 0;
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -285,7 +285,20 @@ function makeForecastRequest(area, forecastResponseCallback) {
     var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
     var alexaReply = '';
 
-    httpStartMillis = new Date().getTime();
+    if ( xmlString != '' ) {
+	    console.log("makeForecastRequest: xmlString not empty, checking xmlString time");
+		var millisecsSinceEpoc = new Date().getTime();
+		var millisecsSinceLastFetch = millisecsSinceEpoc - xmlStringMillisecsSinceEpoc;
+		// 1000 * 5 * 60 = 300000 (number millisecs in 5 mins)
+		if ( millisecsSinceLastFetch < 300000 ) {
+		    console.log("makeForecastRequest: xmlString only: "+millisecsSinceLastFetch+"ms - less than 5 mins old lets use that!");
+		} else {
+		    console.log("makeForecastRequest: xmlString stale, try getting a new one");
+		}
+	} else {
+	    console.log("makeForecastRequest: xmlString empty");
+	}
+
     console.time('http-request');
     
     http.get(metURI, function (res) {
@@ -303,6 +316,9 @@ function makeForecastRequest(area, forecastResponseCallback) {
         });
 
         res.on('end', function () {
+		    // should have a sensible result
+		    xmlStringMillisecsSinceEpoc = new Date().getTime();
+			xmlString = metResponseString;
             // so we have a response to parse.
             console.timeEnd('http-request');
             if ( area.toLowerCase() == "white" ) {
@@ -310,18 +326,18 @@ function makeForecastRequest(area, forecastResponseCallback) {
               area = "Wight";
             }
 
-        // uncomment for XML debug
-	    //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
-        console.log("makeForecastRequest: Have HTTP response, with data");
-        console.timeEnd('Skill-elapsed');
+    // uncomment for XML debug
+	//console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
+    console.log("makeForecastRequest: Have HTTP response, with data");
+    console.timeEnd('Skill-elapsed');
 
-        var areaForecasts = [];
+    var areaForecasts = [];
 	var areas = {};
 	var forecast = '';
-        var gales = [];
-        var issued = '';
-        var monthNames = ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December" ];
+    var gales = [];
+    var issued = '';
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December" ];
 
 	// parse XML into parser
 	console.log("makeForecastRequest: parser.parseString starting");
@@ -331,16 +347,16 @@ function makeForecastRequest(area, forecastResponseCallback) {
 	console.timeEnd('Skill-elapsed');
 	// get the issue time
 	var issue = results['report']['issue'];
-        // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
-        // with split should be the more correct "ten thirty UTC"
-        // or 09 00 UTC
-        // but 12 00 UTC might sound odd
+    // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
+    // with split should be the more correct "ten thirty UTC"
+    // or 09 00 UTC
+    // but 12 00 UTC might sound odd
 	var re = new RegExp('(\\d{2})(\\d{2})');
 	var regResults = issue.$.time.match(re);
-        var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
+    var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
 
-        // get the date
-        var d = new Date(issue.$.date);
+    // get the date
+    var d = new Date(issue.$.date);
 	// turn Month number back into Month name with suffix
 	var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
 	// string it all together now...
@@ -370,10 +386,10 @@ function makeForecastRequest(area, forecastResponseCallback) {
             // you need to parse for two sorts of responses
             // firstly the singular response
 		    if ( areaForecasts[i].area.length == undefined ) {
-			  console.log("makeForecastRequest: Found singlar forecast");
-			  console.timeEnd('Skill-elapsed');
+			  //console.log("makeForecastRequest: Found singlar forecast");
+			  //console.timeEnd('Skill-elapsed');
 		      if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
-			    console.log("makeForecastRequest: Found singlar forecast");
+			    //console.log("makeForecastRequest: Found singlar forecast");
 			    var newIssue = areaForecasts[i].area.$.issuetime;
 				if ( newIssue != undefined ) {
 				  // new issued time/date to overload
@@ -398,8 +414,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			// so we need to split it
 		    var main = [];
 			main = areaForecasts[i].all.split(', ');
-			console.log("makeForecastRequest: looking at multidemensional forecast");
-			console.timeEnd('Skill-elapsed');
+			//console.log("makeForecastRequest: looking at multidemensional forecast");
+			//console.timeEnd('Skill-elapsed');
 			for (var k = 0; k < main.length; k++) {
 			    // Look for match
 			    if ( main[k].toLowerCase() == area.toLowerCase() ) {
