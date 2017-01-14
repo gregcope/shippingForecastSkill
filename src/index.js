@@ -285,21 +285,27 @@ function useCache() {
     if ( xmlString != '' ) {
 
 	    // if not empty, check its millisecsSinceLastFetch
-        console.log("useCache: xmlString not empty, checking xmlString time");
+        //console.log("useCache: xmlString not empty, checking xmlString time");
         var millisecsSinceEpoc = new Date().getTime();
         var millisecsSinceLastFetch = millisecsSinceEpoc - xmlStringMillisecsSinceEpoc;
         // 1000 * 5 * 60 = 300000 (number millisecs in 5 mins)
         if ( millisecsSinceLastFetch < 300000 ) {
+
+		    // fresh (less than timeout)
             console.log("useCache: millisecsSinceLastFetch only: "+millisecsSinceLastFetch+"ms - less than 5 mins old lets use that!");
             // so lets use this one
             return true;
         } else {
+
+		    // old
             console.log("useCache: millisecsSinceLastFetchs tale: "+millisecsSinceLastFetch+"ms , do not use cached version");
             // bit old/manky, need to go fetch a new one
             return false;
         }
     } else {
-        console.log("useCache: xmlString empty");
+
+	    // no cache/string empty
+        console.log("useCache: Cache/xmlString empty");
         // need to go get fetch a puppy!!!
         return false;
     }
