@@ -1,8 +1,18 @@
+// you will need to change APP ID 
+// and may need to change metURI (if it changes)
+
 /**
  * App ID for the skill
  */
 //var APP_ID = undefined;//replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
 var APP_ID = 'amzn1.ask.skill.78c18798-6711-4f41-80bb-6efc669ce296';
+
+// this should not change (much)
+var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
+
+//
+// Do not change anything below here!!!!!
+//
 
 //arn:aws:lambda:eu-west-1:517900834313:function:shippingForecast
 
@@ -324,6 +334,7 @@ function useCache() {
 
 function parseXML(area, foarecastResponseCallback) {
 
+  var alexaReply = '';
   // function to parse XML (cached or fetched) for area forecast
 
   // reset Alexa white to Wight
@@ -332,114 +343,118 @@ function parseXML(area, foarecastResponseCallback) {
     area = "Wight";
   }
 
-    // uncomment for XML debug
-    //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
-    console.log("parseXML: Have HTTP response, with data");
+  // uncomment for XML debug
+  //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
+  console.log("parseXML: Have HTTP response, with data");
+  console.timeEnd('Skill-elapsed');
+
+  var areaForecasts = [];
+  var areas = {};
+  var forecast = '';
+  var gales = [];
+  var issued = '';
+
+  // parse XML into parser
+  console.log("parseXML: parser.parseString starting");
+  console.timeEnd('Skill-elapsed');
+
+  // parse the xmlString, which we assume at this point to be either
+  // fresh enough (ie useCache true)
+  // or refreshed
+  parser.parseString(xmlString, function(err, results) {
+
+    console.log("parseXML: parser.parseString done.");
     console.timeEnd('Skill-elapsed');
+    // get the issue time
+    var issue = results['report']['issue'];
+    // get issue string
+	issued = returnIssuedString(issue.$.time, issue.$.date);
 
-    var areaForecasts = [];
-    var areas = {};
-    var forecast = '';
-    var gales = [];
-    var issued = '';
-
-    // parse XML into parser
-    console.log("parseXML: parser.parseString starting");
-    console.timeEnd('Skill-elapsed');
-    parser.parseString(metResponseString, function(err, results) {
-
-      console.log("parseXML: parser.parseString done.");
-      console.timeEnd('Skill-elapsed');
-      // get the issue time
-      var issue = results['report']['issue'];
-      // get issue string
-	  issued = returnIssuedString(issue.$.time, issue.$.date);
-
-      // get Gale warnings
-      gales = results['report']['gales']['shipping-area'];
-      //console.log("gales: "+JSON.stringify(gales, undefined, 2));
-      // see if our area is in the list of gales!
-      for ( var g = 0; g < gales.length; g++ ) {
-        if ( gales[g].toLowerCase() == area.toLowerCase() ) {
-          // Ops it is!!! Add it to the reply
-          alexaReply = "Gale warning!  ";
-          console.log("makeForecastRequest: Gale warning for: "+area);
-        }
+    // get Gale warnings
+    gales = results['report']['gales']['shipping-area'];
+    //console.log("gales: "+JSON.stringify(gales, undefined, 2));
+    // see if our area is in the list of gales!
+    for ( var g = 0; g < gales.length; g++ ) {
+      if ( gales[g].toLowerCase() == area.toLowerCase() ) {
+        // Ops it is!!! Add it to the reply
+        alexaReply = "Gale warning!  ";
+        console.log("makeForecastRequest: Gale warning for: "+area);
       }
+    }
  
-      // get areas
-      areaForecasts = results['report']['area-forecasts']['area-forecast'];
-      // iterate over the parsed response, looking for the area
-      console.log("parseXML: gale check done, about to loop looking for forecast");
-      console.timeEnd('Skill-elapsed');
+    // get areas
+    areaForecasts = results['report']['area-forecasts']['area-forecast'];
+    // iterate over the parsed response, looking for the area
+    console.log("parseXML: gale check done, about to loop looking for forecast");
+    console.timeEnd('Skill-elapsed');
 
-      // TODO: This for loop should now be a while loop with a break
-	  //       to save some compute time...
-	  //
-      for (var i = 0; i < areaForecasts.length; i++) {
-        // as the met office gives condensed forecasts
-        // you need to parse for two sorts of responses
-        // firstly the singular response
-        if ( areaForecasts[i].area.length == undefined ) {
+    // TODO: This for loop should now be a while loop with a break
+    //       to save some compute time...
+    //
+    for (var i = 0; i < areaForecasts.length; i++) {
+      // as the met office gives condensed forecasts
+      // you need to parse for two sorts of responses
+      // firstly the singular response
+      if ( areaForecasts[i].area.length == undefined ) {
           
-		  // singular forecast ..
+        // singular forecast ..
 
-		  //console.log("parseXML: Found singlar forecast");
-          //console.timeEnd('Skill-elapsed');
+	    //console.log("parseXML: Found singlar forecast");
+        //console.timeEnd('Skill-elapsed');
 
-          if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
+        if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
             
-			// singular forecast mastches the one we want!!!
-			// lets make a response
+		  // singular forecast mastches the one we want!!!
+		  // lets make a response
 		    	
-			//console.log("parseXML: Found singlar forecast");
-            var newIssue = areaForecasts[i].area.$.issuetime;
+		  //console.log("parseXML: Found singlar forecast");
+          var newIssue = areaForecasts[i].area.$.issuetime;
             
-			// does this forecast have its own issue date
-			// like trafalgar usually has
-			// if so overload
-            if ( newIssue != undefined ) {
+	      // does this forecast have its own issue date
+		  // like trafalgar usually has
+		  // if so overload
+          if ( newIssue != undefined ) {
               
-			  // new issued time/date to overload
-			  issued = returnIssuedString(newIssue, areaForecasts[i].area.$.issuedate);
-            }
-              // put response together now!!!
-              alexaReply = alexaReply + areaForecasts[i].area.main
-                + '.  Issued at ' + issued
-                + areaForecasts[i].wind + '  '
-                + areaForecasts[i].seastate + '  '
-                + areaForecasts[i].weather + '  '
-                + areaForecasts[i].visibility;
+	  	    // new issued time/date to overload
+	        issued = returnIssuedString(newIssue, areaForecasts[i].area.$.issuedate);
           }
-        } else {
-          // okay - so it is multidemensional response
-          // so we need to split it
-          var main = [];
-          main = areaForecasts[i].all.split(', ');
-          //console.log("parseXML: looking at multidemensional forecast");
-          //console.timeEnd('Skill-elapsed');
-          for (var k = 0; k < main.length; k++) {
-            // Look for match
-            if ( main[k].toLowerCase() == area.toLowerCase() ) {
-              // match!!!!
-              console.log("parseXML: match");
-              alexaReply = alexaReply + main[k]
-                + '.  Issued at ' + issued
-                + areaForecasts[i].area[k].wind + '   '
-                + areaForecasts[i].area[k].seastate + '   '
-                + areaForecasts[i].area[k].weather + '  '
-                + areaForecasts[i].area[k].visibility;
-            }
+          // put response together now!!!
+          alexaReply = alexaReply + areaForecasts[i].area.main
+            + '.  Issued at ' + issued
+            + areaForecasts[i].wind + '  '
+            + areaForecasts[i].seastate + '  '
+            + areaForecasts[i].weather + '  '
+            + areaForecasts[i].visibility;
+        }
+      } else {
+        // okay - so it is multidemensional response
+        // so we need to split it
+        var main = [];
+        main = areaForecasts[i].all.split(', ');
+        //console.log("parseXML: looking at multidemensional forecast");
+        //console.timeEnd('Skill-elapsed');
+        for (var k = 0; k < main.length; k++) {
+          // Look for match
+          if ( main[k].toLowerCase() == area.toLowerCase() ) {
+            // match!!!!
+            console.log("parseXML: match");
+            alexaReply = alexaReply + main[k]
+              + '.  Issued at ' + issued
+              + areaForecasts[i].area[k].wind + '   '
+              + areaForecasts[i].area[k].seastate + '   '
+              + areaForecasts[i].area[k].weather + '  '
+              + areaForecasts[i].area[k].visibility;
           }
         }
       }
-	  // we have a reply
-	  console.log('parseXML: forecast found is: '+alexaReply);
-      console.timeEnd('Skill-elapsed');
-    });
+    }
+	// we have a reply
+	console.log('parseXML: forecast found is: '+alexaReply);
+    console.timeEnd('Skill-elapsed');
+  });
  
-    // we should have a reponse to send
-    forecastResponseCallback(null, alexaReply);
+  // we should have a reponse to send
+  forecastResponseCallback(null, alexaReply);
 }
 
 /**
@@ -477,140 +492,45 @@ function returnIssuedString(time, date) {
 function makeForecastRequest(area, forecastResponseCallback) {
 
     if ( useCache() ) {
+
+	    console.log("makeForecastRequest: Going to use cached, xmlString");
+	    parseXML(area, foarecastResponseCallback);
 	    // use the cached one
 	} else {
-	  // need to make an HTTP Request
-	}
+	  // we need to go HTTP GET a new one and refresh xmlString !!!!!
 
-    console.log("makeForecastRequest: looking for area: "+area);
-    var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
-    var alexaReply = '';
+	  console.time('http-request');
+	  http.get(metURI, function (res) {
+	    var metResponseString = '';
+		console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
+		console.timeEnd('http-request');
 
-    console.time('http-request');
-    
-    http.get(metURI, function (res) {
-        var metResponseString = '';
-        console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
-        console.timeEnd('http-request');
-
-        if (res.statusCode != 200) {
-            forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI));
-            console.timeEnd('http-request');
-        }
-
-        res.on('data', function (data) {
-            metResponseString += data;
-        });
-
-        res.on('end', function () {
-		    // should have a sensible result
-		    xmlStringMillisecsSinceEpoc = new Date().getTime();
-			xmlString = metResponseString;
-            // so we have a response to parse.
-            console.timeEnd('http-request');
-            if ( area.toLowerCase() == "white" ) {
-              console.log("makeForecastRequest: area is white, changing to Wight");
-              area = "Wight";
-            }
-
-    // uncomment for XML debug
-	//console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
-    console.log("makeForecastRequest: Have HTTP response, with data");
-    console.timeEnd('Skill-elapsed');
-
-    var areaForecasts = [];
-	var areas = {};
-	var forecast = '';
-    var gales = [];
-    var issued = '';
-    var monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December" ];
-
-	// parse XML into parser
-	console.log("makeForecastRequest: parser.parseString starting");
-	console.timeEnd('Skill-elapsed');
-	parser.parseString(metResponseString, function(err, results) {
-	console.log("makeForecastRequest: parser.parseString done.");
-	console.timeEnd('Skill-elapsed');
-	// get the issue time
-	var issue = results['report']['issue'];
-	issued = returnIssuedString(issue.$.time, issue.$.date);
-	console.log('makeForecastRequest: Issued: ' + issued);
-
-	// get Gale warnings
-	gales = results['report']['gales']['shipping-area'];
-	//console.log("gales: "+JSON.stringify(gales, undefined, 2));
-	// see if our area is in the list of gales!
-	for ( var g = 0; g < gales.length; g++ ) {
-	    if ( gales[g].toLowerCase() == area.toLowerCase() ) {
-                // Ops it is!!! Add it to the reply
-		alexaReply = "Gale warning!  ";
-		console.log("makeForecastRequest: Gale warning for: "+area);
-	    }
-        }
-
-	// get areas
-        areaForecasts = results['report']['area-forecasts']['area-forecast'];
-	// iterate over the parsed response, looking for the area
-        console.log("makeForecastRequest: gale check done, about to loop looking for forecast");
-	console.timeEnd('Skill-elapsed');
-
-	for (var i = 0; i < areaForecasts.length; i++) {
-            // as the met office gives condensed forecasts
-            // you need to parse for two sorts of responses
-            // firstly the singular response
-		    if ( areaForecasts[i].area.length == undefined ) {
-			  //console.log("makeForecastRequest: Found singlar forecast");
-			  //console.timeEnd('Skill-elapsed');
-		      if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
-			    console.log("makeForecastRequest: Found singlar forecast");
-			    var newIssue = areaForecasts[i].area.$.issuetime;
-				if ( newIssue != undefined ) {
-				  // new issued time/date to overload
-				  issued = returnIssuedString(newIssue, areaForecasts[i].area.$.issuedate);
-				  console.log("makeForecastRequest: overloaded issued: " + issued); 
-				}
-			    // match!!!!!
-			    alexaReply = alexaReply + areaForecasts[i].area.main
-			      + '.  Issued at ' + issued
-			      + areaForecasts[i].wind + '  '
-			      + areaForecasts[i].seastate + '  '
-			      + areaForecasts[i].weather + '  '
-			      + areaForecasts[i].visibility;
-			  }
-		    } else {
-		        // okay - so it is multidemensional response
-			// so we need to split it
-		    var main = [];
-			main = areaForecasts[i].all.split(', ');
-			//console.log("makeForecastRequest: looking at multidemensional forecast");
-			//console.timeEnd('Skill-elapsed');
-			for (var k = 0; k < main.length; k++) {
-			    // Look for match
-			    if ( main[k].toLowerCase() == area.toLowerCase() ) {
-			      // match!!!!
-				  console.log("makeForecastRequest: match");
-				  alexaReply = alexaReply + main[k]
-				    + '.  Issued at ' + issued
-				    + areaForecasts[i].area[k].wind + '   '
-				    + areaForecasts[i].area[k].seastate + '   '
-				    + areaForecasts[i].area[k].weather + '  '
-				    + areaForecasts[i].area[k].visibility;
-                }
-			  }
-		    }
+        // if for some reason we did not get a HTTP 200 OK
+		if (res.statusCode != 200) {
+		  forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI));
+		  console.timeEnd('http-request');
 		}
-        console.log('makeForecastRequest: forecast found is: '+alexaReply);
-		console.timeEnd('Skill-elapsed');
-      });
 
-	  // we should have a reponse to send
-      forecastResponseCallback(null, alexaReply);
-      });
-    }).on('error', function (e) {
-        console.log("Communications error: " + e.message);
-        forecastResponseCallback(new Error(e.message));
-    });
+        // got some more data to append
+        res.on('data', function (data) {
+		  metResponseString += data;
+		});
+
+        // in theory finished!
+		res.on('end', function () {
+          // should have a sensible result
+		  xmlStringMillisecsSinceEpoc = new Date().getTime();
+		  xmlString = metResponseString;
+		  console.log("makeForecastRequest: res.on done");
+          console.timeEnd('http-request');
+		  parseXML(area, foarecastResponseCallback);
+       });
+	 }).on('error', function (e) {
+	   console.time('http-request');
+	   console.log("Communications error: " + e.message);
+	   forecastResponseCallback(new Error(e.message));
+	 });
+  }
 }
 
 /**
