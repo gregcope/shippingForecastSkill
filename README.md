@@ -6,7 +6,7 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 
 * Takes one area as an argument (e.g. Dover)
 * If Cache is cold, downloads www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
-* Parses XML looking for area
+* Else Parses cached XML looking for area
 * Returns Forecast, hopefully
 
 ##Features
