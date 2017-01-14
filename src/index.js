@@ -17,6 +17,10 @@ var parser = new xml2js.Parser({explicitArray : false});
 var xmlString = '';
 var xmlStringMillisecsSinceEpoc = 0;
 
+// hopefully the months of the year will not change much
+var monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December" ];
+
 /**
  * The AlexaSkill prototype and helper functions
  */
@@ -320,7 +324,66 @@ function useCache() {
 
 function parseXML(area, foarecastResponseCallback) {
 
+  // function to parse XML (cached or fetched) for area forecast
 
+  // reset Alexa white to Wight
+  if ( area.toLowerCase() == "white" ) {
+    //console.log("makeForecastRequest: area is white, changing to Wight");
+    area = "Wight";
+  }
+
+    // uncomment for XML debug
+    //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
+    console.log("parseXML: Have HTTP response, with data");
+    console.timeEnd('Skill-elapsed');
+
+    var areaForecasts = [];
+    var areas = {};
+    var forecast = '';
+    var gales = [];
+    var issued = '';
+
+    // parse XML into parser
+    console.log("parseXML: parser.parseString starting");
+    console.timeEnd('Skill-elapsed');
+    parser.parseString(metResponseString, function(err, results) {
+
+      console.log("parseXML: parser.parseString done.");
+      console.timeEnd('Skill-elapsed');
+      // get the issue time
+      var issue = results['report']['issue'];
+     
+	  issued = returnIssuedString(issue.$.time, issue.$.date);
+
+    });
+ 
+}
+
+/**
+ * Function to return the issued string in the correct format
+ * takes a string
+ * Returns a nice Issued string for Alexa to say
+ * splits up the time into two blocks
+ * Adds UTC
+ * Adds day suffix (e.g. 12th)
+ * Turns Month number into Month long name
+ * sticks it all togethernow...
+ */
+function returnIssuedString(time, date) {
+
+  var issued = '';
+  var re = new RegExp('(\\d{2})(\\d{2})');
+  var regResults = time.match(re);
+  var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
+  
+  // get the date
+  var d = new Date(date);
+  // turn Month number back into Month name with suffix
+  var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
+  // string it all together now...
+  issued = issueTime + issuedDate;
+  console.log('returnIssuedString: Issued: ' + issued);
+  return issued;
 }
 
 
@@ -388,21 +451,8 @@ function makeForecastRequest(area, forecastResponseCallback) {
 	console.timeEnd('Skill-elapsed');
 	// get the issue time
 	var issue = results['report']['issue'];
-    // split up times line 1030 as alexa tries to pronounce these as one thousand and thiry
-    // with split should be the more correct "ten thirty UTC"
-    // or 09 00 UTC
-    // but 12 00 UTC might sound odd
-	var re = new RegExp('(\\d{2})(\\d{2})');
-	var regResults = issue.$.time.match(re);
-    var issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
-
-    // get the date
-    var d = new Date(issue.$.date);
-	// turn Month number back into Month name with suffix
-	var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
-	// string it all together now...
-        issued = issueTime + issuedDate;
-	//console.log('makeForecastRequest: Issued: ' + issued);
+	issued = returnIssuedString(issue.$.time, issue.$.date);
+	console.log('makeForecastRequest: Issued: ' + issued);
 
 	// get Gale warnings
 	gales = results['report']['gales']['shipping-area'];
@@ -430,17 +480,12 @@ function makeForecastRequest(area, forecastResponseCallback) {
 			  //console.log("makeForecastRequest: Found singlar forecast");
 			  //console.timeEnd('Skill-elapsed');
 		      if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
-			    //console.log("makeForecastRequest: Found singlar forecast");
+			    console.log("makeForecastRequest: Found singlar forecast");
 			    var newIssue = areaForecasts[i].area.$.issuetime;
 				if ( newIssue != undefined ) {
 				  // new issued time/date to overload
-				  regResults = newIssue.match(re);
-				  issueTime = regResults[1] + " " + regResults[2] + " U T C.  ";
-				  var d = new Date(areaForecasts[i].area.$.issuedate);
-				  // turn month into Name plus suffix and overload issuedDate
-				  issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
-				  issued = issueTime + issuedDate;
-				  //console.log("issued: " + issued); 
+				  issued = returnIssuedString(newIssue, areaForecasts[i].area.$.issuedate);
+				  console.log("makeForecastRequest: overloaded issued: " + issued); 
 				}
 			    // match!!!!!
 			    alexaReply = alexaReply + areaForecasts[i].area.main
