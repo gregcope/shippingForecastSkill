@@ -352,11 +352,94 @@ function parseXML(area, foarecastResponseCallback) {
       console.timeEnd('Skill-elapsed');
       // get the issue time
       var issue = results['report']['issue'];
-     
+      // get issue string
 	  issued = returnIssuedString(issue.$.time, issue.$.date);
 
+      // get Gale warnings
+      gales = results['report']['gales']['shipping-area'];
+      //console.log("gales: "+JSON.stringify(gales, undefined, 2));
+      // see if our area is in the list of gales!
+      for ( var g = 0; g < gales.length; g++ ) {
+        if ( gales[g].toLowerCase() == area.toLowerCase() ) {
+          // Ops it is!!! Add it to the reply
+          alexaReply = "Gale warning!  ";
+          console.log("makeForecastRequest: Gale warning for: "+area);
+        }
+      }
+ 
+      // get areas
+      areaForecasts = results['report']['area-forecasts']['area-forecast'];
+      // iterate over the parsed response, looking for the area
+      console.log("parseXML: gale check done, about to loop looking for forecast");
+      console.timeEnd('Skill-elapsed');
+
+      // TODO: This for loop should now be a while loop with a break
+	  //       to save some compute time...
+	  //
+      for (var i = 0; i < areaForecasts.length; i++) {
+        // as the met office gives condensed forecasts
+        // you need to parse for two sorts of responses
+        // firstly the singular response
+        if ( areaForecasts[i].area.length == undefined ) {
+          
+		  // singular forecast ..
+
+		  //console.log("parseXML: Found singlar forecast");
+          //console.timeEnd('Skill-elapsed');
+
+          if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
+            
+			// singular forecast mastches the one we want!!!
+			// lets make a response
+		    	
+			//console.log("parseXML: Found singlar forecast");
+            var newIssue = areaForecasts[i].area.$.issuetime;
+            
+			// does this forecast have its own issue date
+			// like trafalgar usually has
+			// if so overload
+            if ( newIssue != undefined ) {
+              
+			  // new issued time/date to overload
+			  issued = returnIssuedString(newIssue, areaForecasts[i].area.$.issuedate);
+            }
+              // put response together now!!!
+              alexaReply = alexaReply + areaForecasts[i].area.main
+                + '.  Issued at ' + issued
+                + areaForecasts[i].wind + '  '
+                + areaForecasts[i].seastate + '  '
+                + areaForecasts[i].weather + '  '
+                + areaForecasts[i].visibility;
+          }
+        } else {
+          // okay - so it is multidemensional response
+          // so we need to split it
+          var main = [];
+          main = areaForecasts[i].all.split(', ');
+          //console.log("parseXML: looking at multidemensional forecast");
+          //console.timeEnd('Skill-elapsed');
+          for (var k = 0; k < main.length; k++) {
+            // Look for match
+            if ( main[k].toLowerCase() == area.toLowerCase() ) {
+              // match!!!!
+              console.log("parseXML: match");
+              alexaReply = alexaReply + main[k]
+                + '.  Issued at ' + issued
+                + areaForecasts[i].area[k].wind + '   '
+                + areaForecasts[i].area[k].seastate + '   '
+                + areaForecasts[i].area[k].weather + '  '
+                + areaForecasts[i].area[k].visibility;
+            }
+          }
+        }
+      }
+	  // we have a reply
+	  console.log('parseXML: forecast found is: '+alexaReply);
+      console.timeEnd('Skill-elapsed');
     });
  
+    // we should have a reponse to send
+    forecastResponseCallback(null, alexaReply);
 }
 
 /**
