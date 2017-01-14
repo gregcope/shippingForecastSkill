@@ -434,6 +434,7 @@ function parseXML(area, forecastResponseCallback) {
         //console.log("parseXML: looking at multidemensional forecast");
         //console.timeEnd('Skill-elapsed');
         for (var k = 0; k < main.length; k++) {
+		  console.log('parseXML: sub area: '+main[k].toLowerCase());
           // Look for match
           if ( main[k].toLowerCase() == area.toLowerCase() ) {
             // match!!!!
