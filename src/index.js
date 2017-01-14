@@ -436,11 +436,11 @@ function parseXML(area, forecastResponseCallback) {
         //console.timeEnd('Skill-elapsed');
 		var done = false;
         for (var k = 0; k < main.length; k++) {
-		  console.log('parseXML: sub area: '+main[k].toLowerCase());
+		  console.log('parseXML: sub area: '+main[k]);
           
 		  // check its not a slit one
           var areaToLookFor = checkSplitForecast(main[k]);
-          console.log('parseXML: areaToLookFor is: '+areaToLookFor);
+          console.log('parseXML: areaToLookFor is now: '+areaToLookFor);
 
 		  // check what we have
           if ( areaToLookFor.toLowerCase() == area.toLowerCase() ) {
@@ -449,11 +449,10 @@ function parseXML(area, forecastResponseCallback) {
 			// also lets make sure we do not double match
 			// make done true on first match as they
 			// are both the same
+			console.log('parseXML: done is: '+done);
 			if ( done != true ) {
 			
-			  console.log('parseXML: done is: '+done);
 			  done = true;
-
               console.log("parseXML: match");
               alexaReply = alexaReply + areaToLookFor
                 + '.  Issued at ' + issued
