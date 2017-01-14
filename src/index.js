@@ -493,24 +493,24 @@ function checkSplitForecast(area) {
 
    // check it is not a normal bouble barrel before regexing
    if ( doubleBarrelledAreas[area.toLowerCase()] ) {
-     
 	 // looks like a legit double barrel area
-     console.log('checkSplitForecast: Double barrel match: '+area);
+     //console.log('checkSplitForecast: Double barrel match: '+area);
 	 return area;
 
    } else {
-
-     // regex it
+     // regex it for a space
      var re = new RegExp('(.*) (.*)');
 	 var regResults = area.match(re);
 	 // check it has a match
 	 if ( regResults != null ) {
 
+       // it is a match for a space, and not an offical double barreled area
+	   // so should be something like "East Wight"
+	   // Grab the end, and return that as the area
 	   console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
 	   // return 2nd string which should be just area
 	   return regResults[2];
-	 } else {
-      
+	 } else {     
 	   // no regex match for space
 	   // therefore a single name
 	   // return unchanged
