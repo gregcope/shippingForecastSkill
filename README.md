@@ -16,6 +16,9 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * If another request hits the same Lambda container within 5mins, a cached response will be returned
 * After 1st invocation, execution time is around 70ms (if a cache hit)
 
+##Bugs
+* Had a forecast which had "East Wight" and "West Wight" in two different areas.  Added code to split these, but I think the forecast might be repeated as it matche twice.  See '''done''' variable.  Forecast went before I could repeat.  Need to build a test case.  Moo.
+
 ##TODO
 * Give synopsis
 * Give a forecast, at sessionStart
