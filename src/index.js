@@ -487,7 +487,7 @@ function checkSplitForecast(area) {
    console.log('checkSplitForecast: checking: '+area);
    // check it is not a normal bouble barrel before regexing
    console.log('checkSplitForecast: doubleBarrelledAreas is: '+doubleBarrelledAreas);
-   if ( doubleBarrelledAreas[area] == area.toLowerCase() ) {
+   if ( doubleBarrelledAreas[area.toLowerCase()] ) {
      
 	 // looks like a legit double barrel area
      console.log('checkSplitForecast: Double barrel match: '+area);
