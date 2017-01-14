@@ -443,11 +443,11 @@ function parseXML(area, forecastResponseCallback) {
         //console.timeEnd('Skill-elapsed');
 		var done = false;
         for (var k = 0; k < main.length; k++) {
-		  console.log('parseXML: sub area: '+main[k]);
+		  //console.log('parseXML: sub area: '+main[k]);
           
 		  // check its not a slit one
           var areaToLookFor = checkSplitForecast(main[k]);
-          console.log('parseXML: areaToLookFor is now: '+areaToLookFor);
+          //console.log('parseXML: areaToLookFor is now: '+areaToLookFor);
 
 		  // check what we have
           if ( areaToLookFor.toLowerCase() == area.toLowerCase() ) {
