@@ -494,7 +494,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
     if ( useCache() ) {
 
 	    console.log("makeForecastRequest: Going to use cached, xmlString");
-	    parseXML(area, foarecastResponseCallback);
+	    parseXML(area, forecastResponseCallback);
 	    // use the cached one
 	} else {
 	  // we need to go HTTP GET a new one and refresh xmlString !!!!!
@@ -523,7 +523,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		  xmlString = metResponseString;
 		  console.log("makeForecastRequest: res.on done");
           console.timeEnd('http-request');
-		  parseXML(area, foarecastResponseCallback);
+		  parseXML(area, forecastResponseCallback);
        });
 	 }).on('error', function (e) {
 	   console.time('http-request');
