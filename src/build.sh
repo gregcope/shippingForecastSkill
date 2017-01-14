@@ -12,7 +12,7 @@
 echo "$0 Starting build ..."
 
 # commit this build
-git commit -am "build be run: `date +%s`"
+git commit -am "build commit: `date +%s`"
 
 zip -x $0 manual.zip -r build.zip *
 
