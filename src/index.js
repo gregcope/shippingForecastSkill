@@ -436,6 +436,9 @@ function parseXML(area, forecastResponseCallback) {
         for (var k = 0; k < main.length; k++) {
 		  console.log('parseXML: sub area: '+main[k].toLowerCase());
           // Look for match
+		  var re = new RegExp('(.*) (.*)');
+		  var regResults = main[k].toLowerCase().match(re);
+		  console.log('parseXML: regex: '+regResults[1] + "," + regResults[2] + '.');
           if ( main[k].toLowerCase() == area.toLowerCase() ) {
             // match!!!!
             console.log("parseXML: match");
