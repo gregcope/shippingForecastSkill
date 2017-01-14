@@ -31,6 +31,9 @@ var xmlStringMillisecsSinceEpoc = 0;
 var monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December" ];
 
+var doubleBarrelledAreas = ["north utsire", "south utsire", "german bight", 
+  "irish sea", "fair isle", "southeast iceland"];
+
 /**
  * The AlexaSkill prototype and helper functions
  */
@@ -401,7 +404,6 @@ function parseXML(area, forecastResponseCallback) {
 
 	    //console.log("parseXML: Found singlar forecast");
         //console.timeEnd('Skill-elapsed');
-
         if ( areaForecasts[i].area.main.toLowerCase() == area.toLowerCase() ) {
             
 		  // singular forecast mastches the one we want!!!
@@ -435,14 +437,12 @@ function parseXML(area, forecastResponseCallback) {
         //console.timeEnd('Skill-elapsed');
         for (var k = 0; k < main.length; k++) {
 		  console.log('parseXML: sub area: '+main[k].toLowerCase());
-          // Look for match
-		  var re = new RegExp('(.*) (.*)');
-		  var regResults = main[k].toLowerCase().match(re);
-		  if ( regResults != null ) {
-		    console.log('parseXML: '+regResults);
-		    console.log('parseXML: regex: '+regResults[1]+","+regResults[2]+'.');
-	      }
-          if ( main[k].toLowerCase() == area.toLowerCase() ) {
+          
+		  // check its not a slit one
+          var areaToLookFor = checkSplitForecast(main[k]);
+
+		  // check what we have
+          if ( areaToLookFor.toLowerCase() == area.toLowerCase() ) {
             // match!!!!
             console.log("parseXML: match");
             alexaReply = alexaReply + main[k]
@@ -462,6 +462,40 @@ function parseXML(area, forecastResponseCallback) {
  
   // we should have a reponse to send
   forecastResponseCallback(null, alexaReply);
+}
+
+/**
+ *
+ * Function to look for an split area
+ * returns the area to look for (ie splits it, if it is a split one
+ * e.g. East Wight would return Wight
+ * but South Utsire would not as it is a proper area 
+ */
+
+function checkSplitForecast(area) {
+
+   // check it is not a normal bouble barrel before regexing
+   if (doubleBarrelledAreas[area] ) {
+     
+	 // looks like a legit double barrel area
+     console.log('checkSplitForecast: Double barrel match: '+area);
+	 return area
+   } else {
+     // regex it
+     var re = new RegExp('(.*) (.*)');
+	 var regResults = areaToLookFor.toLowerCase().match(re);
+	 // check it has a match
+	 if ( regResults != null ) {
+	   console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
+	   // return 2nd string which should be just area
+	   return regResults[2];
+	 } else {
+	   // no regex match for space
+	   // therefore a single name
+	   // return unchanged
+	   return area
+	 }
+   }
 }
 
 /**
