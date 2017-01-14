@@ -438,18 +438,29 @@ function parseXML(area, forecastResponseCallback) {
 		  console.log('parseXML: sub area: '+main[k].toLowerCase());
           
 		  // check its not a slit one
-          var areaToLookFor = checkSplitForecast(main[k]);
+          var [areaToLookFor, split] = checkSplitForecast(main[k]);
+          console.log('parseXML: split is: '+split);
 
 		  // check what we have
           if ( areaToLookFor.toLowerCase() == area.toLowerCase() ) {
             // match!!!!
-            console.log("parseXML: match");
-            alexaReply = alexaReply + main[k]
-              + '.  Issued at ' + issued
-              + areaForecasts[i].area[k].wind + '   '
-              + areaForecasts[i].area[k].seastate + '   '
-              + areaForecasts[i].area[k].weather + '  '
-              + areaForecasts[i].area[k].visibility;
+
+			// also lets make sure we do not double match
+			// make done true on first match as they
+			// are both the same
+			if ( done != true ) {
+			
+			  console.log('parseXML: doe is: '+done);
+			  done = true;
+
+              console.log("parseXML: match");
+              alexaReply = alexaReply + areaToLookFor
+                + '.  Issued at ' + issued
+                + areaForecasts[i].area[k].wind + '   '
+                + areaForecasts[i].area[k].seastate + '   '
+                + areaForecasts[i].area[k].weather + '  '
+                + areaForecasts[i].area[k].visibility;
+			}
           }
         }
       }
@@ -478,21 +489,24 @@ function checkSplitForecast(area) {
      
 	 // looks like a legit double barrel area
      console.log('checkSplitForecast: Double barrel match: '+area);
-	 return area
+	 return [area, false];
    } else {
+
      // regex it
      var re = new RegExp('(.*) (.*)');
 	 var regResults = area.toLowerCase().match(re);
 	 // check it has a match
 	 if ( regResults != null ) {
+
 	   console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
 	   // return 2nd string which should be just area
-	   return regResults[2];
+	   return [regResults[2], true];
 	 } else {
+
 	   // no regex match for space
 	   // therefore a single name
 	   // return unchanged
-	   return area
+	   return [area, false];
 	 }
    }
 }
