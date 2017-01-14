@@ -482,7 +482,7 @@ function checkSplitForecast(area) {
    } else {
      // regex it
      var re = new RegExp('(.*) (.*)');
-	 var regResults = areaToLookFor.toLowerCase().match(re);
+	 var regResults = area.toLowerCase().match(re);
 	 // check it has a match
 	 if ( regResults != null ) {
 	   console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
