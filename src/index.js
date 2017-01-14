@@ -438,7 +438,7 @@ function parseXML(area, forecastResponseCallback) {
           // Look for match
 		  var re = new RegExp('(.*) (.*)');
 		  var regResults = main[k].toLowerCase().match(re);
-		  if ( regResults[1] != null ) {
+		  if ( regResults != null ) {
 		    console.log('parseXML: '+regResults);
 		    console.log('parseXML: regex: '+regResults[1]+","+regResults[2]+'.');
 	      }
