@@ -434,6 +434,7 @@ function parseXML(area, forecastResponseCallback) {
         main = areaForecasts[i].all.split(', ');
         //console.log("parseXML: looking at multidemensional forecast");
         //console.timeEnd('Skill-elapsed');
+		var done = false;
         for (var k = 0; k < main.length; k++) {
 		  console.log('parseXML: sub area: '+main[k].toLowerCase());
           
@@ -441,7 +442,6 @@ function parseXML(area, forecastResponseCallback) {
           var areaToLookFor = checkSplitForecast(main[k]);
           console.log('parseXML: areaToLookFor is: '+areaToLookFor);
 
-          var done = false;
 		  // check what we have
           if ( areaToLookFor.toLowerCase() == area.toLowerCase() ) {
             // match!!!!
@@ -451,7 +451,7 @@ function parseXML(area, forecastResponseCallback) {
 			// are both the same
 			if ( done != true ) {
 			
-			  console.log('parseXML: doe is: '+done);
+			  console.log('parseXML: done is: '+done);
 			  done = true;
 
               console.log("parseXML: match");
