@@ -332,7 +332,7 @@ function useCache() {
  * parsexmlString for forecast
  */
 
-function parseXML(area, foarecastResponseCallback) {
+function parseXML(area, forecastResponseCallback) {
 
   var alexaReply = '';
   // function to parse XML (cached or fetched) for area forecast
