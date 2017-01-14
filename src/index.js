@@ -31,8 +31,15 @@ var xmlStringMillisecsSinceEpoc = 0;
 var monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December" ];
 
-var doubleBarrelledAreas = { "north utsire", "south utsire", "german bight", 
-  "irish sea", "fair isle", "southeast iceland" };
+var doubleBarrelledAreas = {
+  "north utsire" : "2",
+  "south utsire" : "3",
+  "german bight" : "10",
+  "irish Sea" : "23",
+  "fair isle" : "29",
+  "southeast iceland" : "31"
+};
+
 
 /**
  * The AlexaSkill prototype and helper functions
