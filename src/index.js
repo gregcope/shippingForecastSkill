@@ -360,6 +360,7 @@ function parseXML(area, forecastResponseCallback) {
   // parse the xmlString, which we assume at this point to be either
   // fresh enough (ie useCache true)
   // or refreshed
+  // TODO: Cache the parsed string, however no point as present execution time, 70ms approx, is below the lambda min of 100ms
   parser.parseString(xmlString, function(err, results) {
 
     console.log("parseXML: parser.parseString done.");

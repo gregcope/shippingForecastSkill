@@ -5,7 +5,7 @@ Amazon Alexa skill for the UK Met office Shipping forecast
 A simple NodeJS skill that downloads the forecast in XML, and parses out the area the person has asked for
 
 * Takes one area as an argument (e.g. Dover)
-* Downloads www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
+* If Cache is cold, downloads www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
 * Parses XML looking for area
 * Returns Forecast, hopefully
 
@@ -13,6 +13,8 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Will give gale Warning if area has a warning
 * Adds the correct date suffix (st,nd,th etc...)
 * Gives correct issue time and date, even for areas that sometimes have thier own seperate ones (e.g. Trafalgar)
+* If another request hits the same Lambda container within 5mins, a cached response will be returned
+* After 1st invocation, execution time is around 70ms (if a cache hit)
 
 ##TODO
 * Give synopsis
