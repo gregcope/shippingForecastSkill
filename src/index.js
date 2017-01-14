@@ -6,8 +6,11 @@ var APP_ID = 'amzn1.ask.skill.78c18798-6711-4f41-80bb-6efc669ce296';
 
 //arn:aws:lambda:eu-west-1:517900834313:function:shippingForecast
 
+// HTTP client module
 var http = require('http');
+// XML parser module
 var xml2js = require ('xml2js');
+// Actual parser object
 var parser = new xml2js.Parser({explicitArray : false});
 
 // cache global vars, one to hold the content, the other to hold the time
@@ -212,7 +215,7 @@ function handleAreaDialogRequest(intent, session, response) {
 function handleNoSlotDialogRequest(intent, session, response) {
     if (session.attributes.area) {
         // get date re-prompt
-        var repromptText = "Please try again saying a day of the week, for example, Saturday. ";
+        var repromptText = "Please try again saying a shipping area, for example, Dover. ";
         var speechOutput = repromptText;
 
         response.ask(speechOutput, repromptText);
