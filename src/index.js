@@ -384,8 +384,8 @@ function parseXML(area, forecastResponseCallback) {
     // get areas
     areaForecasts = results['report']['area-forecasts']['area-forecast'];
     // iterate over the parsed response, looking for the area
-    console.log("parseXML: gale check done, about to loop looking for forecast");
-    console.timeEnd('Skill-elapsed');
+    //console.log("parseXML: gale check done, about to loop looking for forecast");
+    //console.timeEnd('Skill-elapsed');
 
     // TODO: This for loop should now be a while loop with a break
     //       to save some compute time...
@@ -479,7 +479,7 @@ function returnIssuedString(time, date) {
   var issuedDate = dateWithSuffix(d.getDate()) + " of "+monthNames[d.getMonth()]+".  ";
   // string it all together now...
   issued = issueTime + issuedDate;
-  console.log('returnIssuedString: Issued: ' + issued);
+  //console.log('returnIssuedString: Issued: ' + issued);
   return issued;
 }
 
