@@ -339,7 +339,7 @@ function parseXML(area, forecastResponseCallback) {
 
   // reset Alexa white to Wight
   if ( area.toLowerCase() == "white" ) {
-    //console.log("makeForecastRequest: area is white, changing to Wight");
+    console.log("makeForecastRequest: area is white, changing to Wight");
     area = "Wight";
   }
 
