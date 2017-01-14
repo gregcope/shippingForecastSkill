@@ -31,8 +31,8 @@ var xmlStringMillisecsSinceEpoc = 0;
 var monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December" ];
 
-var doubleBarrelledAreas = ["north utsire", "south utsire", "german bight", 
-  "irish sea", "fair isle", "southeast iceland"];
+var doubleBarrelledAreas = { "north utsire", "south utsire", "german bight", 
+  "irish sea", "fair isle", "southeast iceland" };
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -484,7 +484,7 @@ function parseXML(area, forecastResponseCallback) {
 
 function checkSplitForecast(area) {
 
-   console.log('checkSplitForecast: checking: '+area);
+   console.log('checkSplitForecast: checking: '+area.toLowerCase);
    // check it is not a normal bouble barrel before regexing
    console.log('checkSplitForecast: doubleBarrelledAreas is: '+doubleBarrelledAreas);
    if ( doubleBarrelledAreas[area.toLowerCase()] ) {
@@ -492,6 +492,7 @@ function checkSplitForecast(area) {
 	 // looks like a legit double barrel area
      console.log('checkSplitForecast: Double barrel match: '+area);
 	 return area;
+
    } else {
 
      // regex it
@@ -504,7 +505,7 @@ function checkSplitForecast(area) {
 	   // return 2nd string which should be just area
 	   return regResults[2];
 	 } else {
-
+      
 	   // no regex match for space
 	   // therefore a single name
 	   // return unchanged
