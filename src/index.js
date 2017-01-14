@@ -438,9 +438,10 @@ function parseXML(area, forecastResponseCallback) {
 		  console.log('parseXML: sub area: '+main[k].toLowerCase());
           
 		  // check its not a slit one
-          var [areaToLookFor, split] = checkSplitForecast(main[k]);
-          console.log('parseXML: split is: '+split);
+          var areaToLookFor = checkSplitForecast(main[k]);
+          console.log('parseXML: areaToLookFor is: '+areaToLookFor);
 
+          var done = false;
 		  // check what we have
           if ( areaToLookFor.toLowerCase() == area.toLowerCase() ) {
             // match!!!!
@@ -489,7 +490,7 @@ function checkSplitForecast(area) {
      
 	 // looks like a legit double barrel area
      console.log('checkSplitForecast: Double barrel match: '+area);
-	 return [area, false];
+	 return area;
    } else {
 
      // regex it
@@ -500,13 +501,13 @@ function checkSplitForecast(area) {
 
 	   console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
 	   // return 2nd string which should be just area
-	   return [regResults[2], true];
+	   return regResults[2];
 	 } else {
 
 	   // no regex match for space
 	   // therefore a single name
 	   // return unchanged
-	   return [area, false];
+	   return area;
 	 }
    }
 }
