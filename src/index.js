@@ -35,7 +35,7 @@ var doubleBarrelledAreas = {
   "north utsire" : "2",
   "south utsire" : "3",
   "german bight" : "10",
-  "irish Sea" : "23",
+  "irish sea" : "23",
   "fair isle" : "29",
   "southeast iceland" : "31"
 };
@@ -150,7 +150,7 @@ var AREAS = {
   "sole" : "20",
   "lundy" : "21",
   "fastnet" : "22",
-  "irish Sea" : "23",
+  "irish sea" : "23",
   "shannon" : "24",
   "rockall": "25",
   "malin" : "26",
