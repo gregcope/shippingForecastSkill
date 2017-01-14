@@ -151,8 +151,7 @@ var AREAS = {
   "bailey" : "28",
   "fair isle" : "29",
   "faeroes" : "30",
-  // This is actually "South-east Iceland" in the JS file
-  "Southeast Iceland" : "31"
+  "southeast iceland" : "31"
 };
 
 function handleWelcomeRequest(response) {
