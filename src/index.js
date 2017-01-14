@@ -315,7 +315,7 @@ function useCache() {
         } else {
 
 		    // old
-            console.log("useCache: millisecsSinceLastFetchs tale: "+millisecsSinceLastFetch+"ms , do not use cached version");
+            console.log("useCache: millisecsSinceLastFetchs old: "+millisecsSinceLastFetch+"ms , not using cached version");
             // bit old/manky, need to go fetch a new one
             return false;
         }
