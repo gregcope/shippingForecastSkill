@@ -344,8 +344,7 @@ function parseXML(area, forecastResponseCallback) {
   }
 
   // uncomment for XML debug
-  //console.log("makeForecastRequest: have metResponseString: "+metResponseString+". area: "+area +" ,in:"+elapsedMillis+"ms.");
-  console.log("parseXML: Have HTTP response, with data");
+  //console.log("parseXML: xmlString is: "+xmlString+". area: "+area);
   console.timeEnd('Skill-elapsed');
 
   var areaForecasts = [];
