@@ -491,9 +491,7 @@ function parseXML(area, forecastResponseCallback) {
 
 function checkSplitForecast(area) {
 
-   console.log('checkSplitForecast: checking: '+area.toLowerCase);
    // check it is not a normal bouble barrel before regexing
-   console.log('checkSplitForecast: doubleBarrelledAreas is: '+doubleBarrelledAreas);
    if ( doubleBarrelledAreas[area.toLowerCase()] ) {
      
 	 // looks like a legit double barrel area
