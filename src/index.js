@@ -10,10 +10,6 @@ var APP_ID = 'amzn1.ask.skill.78c18798-6711-4f41-80bb-6efc669ce296';
 // this should not change (much)
 var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
 
-//
-// Do not change anything below here!!!!!
-//
-
 //arn:aws:lambda:eu-west-1:517900834313:function:shippingForecast
 
 // HTTP client module
@@ -40,6 +36,43 @@ var doubleBarrelledAreas = {
   "southeast iceland" : "31"
 };
 
+// an object of all the shipping areas
+// so that we can parse the response
+var AREAS = {
+  "viking" : "1",
+  "north utsire" : "2",
+  "south utsire" : "3",
+  "forties" : "4",
+  "cromarty" : "5",
+  "forth" : "6",
+  "tyne" : "7",
+  "dogger" : "8",
+  "fisher" : "9",
+  "german bight" : "10",
+  "humber" : "11",
+  "thames" : "12",
+  "dover" : "13",
+  "white" : "14",
+  "portland" : "15",
+  "plymouth" : "16",
+  "biscay" : "17",
+  "trafalgar" : "18",
+  "fitzroy" : "19",
+  "sole" : "20",
+  "lundy" : "21",
+  "fastnet" : "22",
+  "irish sea" : "23",
+  "shannon" : "24",
+  "rockall": "25",
+  "malin" : "26",
+  "hebrides" : "27",
+  "bailey" : "28",
+  "fair isle" : "29",
+  "faeroes" : "30",
+  "southeast iceland" : "31"
+};
+
+// CODE FROM HERE ON
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -124,42 +157,6 @@ ShippingForecast.prototype.intentHandlers = {
 };
 
 // -------------------------- ShippingForecast Domain Specific Business Logic --------------------------
-
-// an object of all the shipping areas
-// so that we can parse the response
-var AREAS = {
-  "viking" : "1",
-  "north utsire" : "2",
-  "south utsire" : "3",
-  "forties" : "4",
-  "cromarty" : "5",
-  "forth" : "6",
-  "tyne" : "7",
-  "dogger" : "8",
-  "fisher" : "9",
-  "german bight" : "10",
-  "humber" : "11",
-  "thames" : "12",
-  "dover" : "13",
-  "white" : "14",
-  "portland" : "15",
-  "plymouth" : "16",
-  "biscay" : "17",
-  "trafalgar" : "18",
-  "fitzroy" : "19",
-  "sole" : "20",
-  "lundy" : "21",
-  "fastnet" : "22",
-  "irish sea" : "23",
-  "shannon" : "24",
-  "rockall": "25",
-  "malin" : "26",
-  "hebrides" : "27",
-  "bailey" : "28",
-  "fair isle" : "29",
-  "faeroes" : "30",
-  "southeast iceland" : "31"
-};
 
 function handleWelcomeRequest(response) {
     var whichAreaPrompt = "Which area would you like forecast information for?",
@@ -301,8 +298,10 @@ function getFinalForecastResponse(area, response) {
 }
 
 /**
- * Check the xmlString is not empty and it's last fetch time
- * return true if use cache, else return false
+ *
+ * Function: Check the xmlString is not empty and it's last fetch time
+ * return true if fresh, (ie.) use cache, else return false (ie. do not use cache)
+ *
  */
 
 function useCache() {
@@ -338,7 +337,11 @@ function useCache() {
 }
 
 /**
- * parsexmlString for forecast
+ *
+ * Function for parsing XML looking for area
+ * Configures an alexaReply 
+ * and passes this to forecastResponseCallback
+ *
  */
 
 function parseXML(area, forecastResponseCallback) {
@@ -371,6 +374,7 @@ function parseXML(area, forecastResponseCallback) {
   // fresh enough (ie useCache true)
   // or refreshed
   // TODO: Cache the parsed string, however no point as present execution time, 70ms approx, is below the lambda min of 100ms
+  // TODO: Wrap some of these in try / catch blocks
   parser.parseString(xmlString, function(err, results) {
 
     console.log("parseXML: parser.parseString done.");
@@ -381,11 +385,11 @@ function parseXML(area, forecastResponseCallback) {
 	issued = returnIssuedString(issue.$.time, issue.$.date);
 
     //console.log("parseXML: about to check for gales");
-    // get Gale warnings
+    // get Gale warnings from XML
     gales = results['report']['gales']['shipping-area'];
     //console.log("parseXML: gales: "+JSON.stringify(gales, undefined, 2));
 
-    // are the some gales!
+    // are the some gales if defined
 	if ( gales != undefined ) {
       // see if our area is in the list of gales!
       for ( var g = 0; g < gales.length; g++ ) {
@@ -422,6 +426,8 @@ function parseXML(area, forecastResponseCallback) {
 		  var newIssue = '';
 
 		  console.log('parseXML: Singluar forecast Match for area: '+area+', done is: '+done);
+
+		  // this stanza may or maynot exist
 		  try {
             newIssue = areaForecasts[i].area.$.issuetime;
           }
@@ -446,6 +452,7 @@ function parseXML(area, forecastResponseCallback) {
             + areaForecasts[i].visibility;
         }
       } else {
+
         // okay - so it is multidemensional response
         // so we need to split it
         var main = [];
@@ -498,6 +505,7 @@ function parseXML(area, forecastResponseCallback) {
  * returns the area to look for (ie splits it, if it is a split one
  * e.g. East Wight would return Wight
  * but South Utsire would not as it is a proper area 
+ *
  */
 
 function checkSplitForecast(area) {
@@ -532,6 +540,7 @@ function checkSplitForecast(area) {
 }
 
 /**
+ *
  * Function to return the issued string in the correct format
  * takes a string
  * Returns a nice Issued string for Alexa to say
@@ -540,6 +549,7 @@ function checkSplitForecast(area) {
  * Adds day suffix (e.g. 12th)
  * Turns Month number into Month long name
  * sticks it all togethernow...
+ *
  */
 function returnIssuedString(time, date) {
 
@@ -558,11 +568,15 @@ function returnIssuedString(time, date) {
   return issued;
 }
 
-
 /**
+ *
  * Fetch the Met Office XML file
  * http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
+ * Updates the xmlString and xmlStringMillisecsSinceEpoc if correct
+ * Times the HTTP response time as console.timeEnd('http-request');
+ *
  */
+
 function makeForecastRequest(area, forecastResponseCallback) {
 
     if ( useCache() ) {
@@ -600,7 +614,7 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		  parseXML(area, forecastResponseCallback);
        });
 	 }).on('error', function (e) {
-	   console.time('http-request');
+	   console.timeEnd('http-request');
 	   console.log("Communications error: " + e.message);
 	   forecastResponseCallback(new Error(e.message));
 	 });
