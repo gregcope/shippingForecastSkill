@@ -38,3 +38,7 @@ jspm_packages
 
 #vi swp files
 .swp
+
+#build files
+build.zip
+manual.zip
