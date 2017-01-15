@@ -517,7 +517,8 @@ function checkSplitForecast(area) {
        // it is a match for a space, and not an offical double barreled area
 	   // so should be something like "East Wight"
 	   // Grab the end, and return that as the area
-	   console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
+	   //console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
+	   console.log("checkSplitForecast: areas is: "+area+", split so returning: "+regResults[2]); 
 	   // return 2nd string which should be just area
 	   return regResults[2];
 	 } else {     
