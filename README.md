@@ -15,9 +15,11 @@ A simple NodeJS skill that downloads the forecast in XML, and parses out the are
 * Gives correct issue time and date, even for areas that sometimes have thier own seperate ones (e.g. Trafalgar)
 * If another request hits the same Lambda container within 5mins, a cached response will be returned
 * After 1st invocation, execution time is around 70ms (if a cache hit)
+* Handles split areas like "East Wight", "West Wight"
 
 ##Bugs
 * Had a forecast which had "East Wight" and "West Wight" in two different areas.  Added code to split these, but I think the forecast might be repeated as it matche twice.  See '''done''' variable.  Forecast went before I could repeat.  Need to build a test case.  Moo.
+* Parses XML more than once, we could cache that
 
 ##TODO
 * Give synopsis
