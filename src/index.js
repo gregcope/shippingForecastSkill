@@ -420,7 +420,7 @@ function parseXML(area, forecastResponseCallback) {
 		  // lets make a response
 		  var newIssue = '';
 
-		  console.log("parseXML: Found singlar forecast");
+		  console.log('parseXML: Singluar forecast Match for area: '+area+', done is: '+done);
 		  try {
             newIssue = areaForecasts[i].area.$.issuetime;
           }
@@ -466,7 +466,7 @@ function parseXML(area, forecastResponseCallback) {
 			// also lets make sure we do not double match
 			// make done true on first match as they
 			// are both the same
-			console.log('parseXML: done is: '+done);
+			console.log('parseXML: multiforecast, Match for area: '+area+', done is: '+done);
 			if ( done != true ) {
 			
 			  done = true;
@@ -517,8 +517,8 @@ function checkSplitForecast(area) {
        // it is a match for a space, and not an offical double barreled area
 	   // so should be something like "East Wight"
 	   // Grab the end, and return that as the area
-	   //console.log("parseXML: regex: '"+regResults[1]+"','"+regResults[2]+"'");
-	   console.log("checkSplitForecast: areas is: "+area+", split so returning: "+regResults[2]); 
+	   
+	   //console.log("checkSplitForecast: areas is: "+area+", split so returning: "+regResults[2]); 
 	   // return 2nd string which should be just area
 	   return regResults[2];
 	 } else {     
