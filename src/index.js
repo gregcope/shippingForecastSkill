@@ -343,6 +343,7 @@ function useCache() {
 
 function parseXML(area, forecastResponseCallback) {
 
+  var galewarning = '';
   var alexaReply = '';
   // function to parse XML (cached or fetched) for area forecast
 
@@ -390,7 +391,7 @@ function parseXML(area, forecastResponseCallback) {
       for ( var g = 0; g < gales.length; g++ ) {
         if ( gales[g].toLowerCase() == area.toLowerCase() ) {
           // Ops it is!!! Add it to the reply
-          alexaReply = "Gale warning!  ";
+		  galewarning = "Gale warning!  ";
           console.log("makeForecastRequest: Gale warning for: "+area);
         }
       }
@@ -437,7 +438,7 @@ function parseXML(area, forecastResponseCallback) {
 	        issued = returnIssuedString(newIssue, areaForecasts[i].area.$.issuedate);
           }
           // put response together now!!!
-          alexaReply = alexaReply + areaForecasts[i].area.main
+          alexaReply = galewarning + areaForecasts[i].area.main
             + '.  Issued at ' + issued
             + areaForecasts[i].wind + '  '
             + areaForecasts[i].seastate + '  '
@@ -471,7 +472,7 @@ function parseXML(area, forecastResponseCallback) {
 			
 			  done = true;
               console.log("parseXML: match, done var is now: "+done);
-              alexaReply = alexaReply + areaToLookFor
+              alexaReply = galewarning + areaToLookFor
                 + '.  Issued at ' + issued
                 + areaForecasts[i].area[k].wind + '   '
                 + areaForecasts[i].area[k].seastate + '   '
