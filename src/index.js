@@ -470,7 +470,7 @@ function parseXML(area, forecastResponseCallback) {
 			if ( done != true ) {
 			
 			  done = true;
-              console.log("parseXML: match");
+              console.log("parseXML: match, done var is now: "+done);
               alexaReply = alexaReply + areaToLookFor
                 + '.  Issued at ' + issued
                 + areaForecasts[i].area[k].wind + '   '
