@@ -379,23 +379,22 @@ function parseXML(area, forecastResponseCallback) {
     // get issue string
 	issued = returnIssuedString(issue.$.time, issue.$.date);
 
-    console.log("parseXML: about to check for gales");
+    //console.log("parseXML: about to check for gales");
     // get Gale warnings
     gales = results['report']['gales']['shipping-area'];
     //console.log("parseXML: gales: "+JSON.stringify(gales, undefined, 2));
 
-	if ( gales == undefined ) {
-	  console.log("parseXML: gales: undefiend");
-	}
-    // see if our area is in the list of gales!
-    for ( var g = 0; g < gales.length; g++ ) {
-      if ( gales[g].toLowerCase() == area.toLowerCase() ) {
-        // Ops it is!!! Add it to the reply
-        alexaReply = "Gale warning!  ";
-        console.log("makeForecastRequest: Gale warning for: "+area);
+    // are the some gales!
+	if ( gales != undefined ) {
+      // see if our area is in the list of gales!
+      for ( var g = 0; g < gales.length; g++ ) {
+        if ( gales[g].toLowerCase() == area.toLowerCase() ) {
+          // Ops it is!!! Add it to the reply
+          alexaReply = "Gale warning!  ";
+          console.log("makeForecastRequest: Gale warning for: "+area);
+        }
       }
     }
- 
     // get areas
     areaForecasts = results['report']['area-forecasts']['area-forecast'];
     // iterate over the parsed response, looking for the area
