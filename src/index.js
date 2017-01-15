@@ -418,10 +418,16 @@ function parseXML(area, forecastResponseCallback) {
             
 		  // singular forecast mastches the one we want!!!
 		  // lets make a response
-		    	
-		  //console.log("parseXML: Found singlar forecast");
-          var newIssue = areaForecasts[i].area.$.issuetime;
-            
+		  var newIssue = '';
+
+		  console.log("parseXML: Found singlar forecast");
+		  try {
+            newIssue = areaForecasts[i].area.$.issuetime;
+          }
+		  catch(err) {
+		    newIssue = undefined;
+		  }
+
 	      // does this forecast have its own issue date
 		  // like trafalgar usually has
 		  // if so overload
