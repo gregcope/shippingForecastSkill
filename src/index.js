@@ -382,7 +382,11 @@ function parseXML(area, forecastResponseCallback) {
     console.log("parseXML: about to check for gales");
     // get Gale warnings
     gales = results['report']['gales']['shipping-area'];
-    console.log("parseXML: gales: "+JSON.stringify(gales, undefined, 2));
+    //console.log("parseXML: gales: "+JSON.stringify(gales, undefined, 2));
+
+	if ( gales == undefined ) {
+	  console.log("parseXML: gales: undefiend");
+	}
     // see if our area is in the list of gales!
     for ( var g = 0; g < gales.length; g++ ) {
       if ( gales[g].toLowerCase() == area.toLowerCase() ) {
