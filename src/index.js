@@ -8,7 +8,7 @@
 var APP_ID = 'amzn1.ask.skill.78c18798-6711-4f41-80bb-6efc669ce296';
 
 // this should not change (much)
-var metURI = 'http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
+var metURI = 'https://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest';
 
 //arn:aws:lambda:eu-west-1:517900834313:function:shippingForecast
 
