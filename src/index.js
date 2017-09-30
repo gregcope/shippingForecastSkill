@@ -13,7 +13,7 @@ var metURI = 'https://www.metoffice.gov.uk/public/data/CoreProductCache/Shipping
 //arn:aws:lambda:eu-west-1:517900834313:function:shippingForecast
 
 // HTTP client module
-var http = require('http');
+var https = require('https');
 // XML parser module
 var xml2js = require ('xml2js');
 // Actual parser object
@@ -571,9 +571,9 @@ function returnIssuedString(time, date) {
 /**
  *
  * Fetch the Met Office XML file
- * http://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
+ * https://www.metoffice.gov.uk/public/data/CoreProductCache/ShippingForecast/Latest
  * Updates the xmlString and xmlStringMillisecsSinceEpoc if correct
- * Times the HTTP response time as console.timeEnd('http-request');
+ * Times the HTTP response time as console.timeEnd('https-request');
  *
  */
 
@@ -587,16 +587,16 @@ function makeForecastRequest(area, forecastResponseCallback) {
 	} else {
 	  // we need to go HTTP GET a new one and refresh xmlString !!!!!
 
-	  console.time('http-request');
-	  http.get(metURI, function (res) {
+	  console.time('https-request');
+	  https.get(metURI, function (res) {
 	    var metResponseString = '';
 		console.log('makeForecastRequest: HTTP response for Status Code: '+res.statusCode+', for: '+metURI);
-		console.timeEnd('http-request');
+		console.timeEnd('https-request');
 
         // if for some reason we did not get a HTTP 200 OK
 		if (res.statusCode != 200) {
 		  forecastResponseCallback(new Error("makeForecastRequest: Non 200 Response for: "+metURI));
-		  console.timeEnd('http-request');
+		  console.timeEnd('https-request');
 		}
 
         // got some more data to append
@@ -610,11 +610,11 @@ function makeForecastRequest(area, forecastResponseCallback) {
 		  xmlStringMillisecsSinceEpoc = new Date().getTime();
 		  xmlString = metResponseString;
 		  console.log("makeForecastRequest: res.on done");
-          console.timeEnd('http-request');
+          console.timeEnd('https-request');
 		  parseXML(area, forecastResponseCallback);
        });
 	 }).on('error', function (e) {
-	   console.timeEnd('http-request');
+	   console.timeEnd('https-request');
 	   console.log("Communications error: " + e.message);
 	   forecastResponseCallback(new Error(e.message));
 	 });
